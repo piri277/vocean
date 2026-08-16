@@ -1,0 +1,47 @@
+[
+  {
+    "id": "sena-001",
+    "nombre": "A",
+    "categoria": "Alfabeto",
+    "descripcion": "Puño cerrado con el pulgar apoyado al costado del índice.",
+    "posicionReferencia": {
+      "landmarksClave": [4, 8, 12, 16, 20],
+      "anguloPulgar": 15.5,
+      "distanciaIndiceMedio": 2.1
+    },
+    "estadoAprendizaje": {
+      "tipo": "dominada",
+      "fechaDominada": "2026-08-05T14:30:00Z",
+      "precision": 0.93
+    },
+    "videoReferencia": "https://ejemplo.co/videos/letra_a.mp4"
+  },
+  {
+    "id": "sena-002",
+    "nombre": "Hola",
+    "categoria": "Saludos",
+    "descripcion": "Mano abierta cerca de la sien, se mueve levemente hacia afuera.",
+    "posicionReferencia": {
+      "landmarksClave": [0, 4, 8, 12, 16, 20],
+      "anguloPulgar": 40.0,
+      "distanciaIndiceMedio": 3.4
+    },
+    "estadoAprendizaje": { "tipo": "no_iniciada" }
+  },
+  {
+    "id": "sena-003",
+    "nombre": "Emergencia",
+    "categoria": "Emergencias",
+    "descripcion": "Puño golpeando la palma abierta repetidamente.",
+    "posicionReferencia": {
+      "landmarksClave": [0, 5, 9, 13, 17],
+      "anguloPulgar": 8.0,
+      "distanciaIndiceMedio": 0.5
+    },
+    "estadoAprendizaje": {
+      "tipo": "necesita_repaso",
+      "motivo": "Confundes el ángulo del pulgar con la seña de auxilio.",
+      "diasSinPracticar": 12
+    }
+  }
+]
