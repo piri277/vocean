@@ -1,17 +1,17 @@
-# miapp
+# Miapp — Diccionario de Lengua de Señas
 
-A new Flutter project.
+App móvil que ayuda a aprender lengua de señas (alfabeto, saludos, vocabulario básico) con práctica interactiva y seguimiento de progreso.
 
-## Getting Started
+## El dominio
 
-This project is a starting point for a Flutter application.
+- `Sena`   — entidad principal. Identidad: `id`.
+- `PosicionMano` — objeto de valor (landmarks de referencia + ángulos).
+- `EstadoAprendizaje` — sellada: NoIniciada · EnPractica · Dominada · NecesitaRepaso.
 
-A few resources to get you started if this is your first Flutter project:
+Decisión: modelo escrito a mano, sin freezed, porque el volumen de campos por clase es pequeño y el mensaje de error propio (`CampoInvalido`) da más contexto que el genérico del generador.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Cómo correrlo
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+    flutter pub get
+    flutter test
+    flutter run
