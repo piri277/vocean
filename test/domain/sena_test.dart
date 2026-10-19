@@ -1,15 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:miapp/core/json.dart';
-import 'package:miapp/features/senas/domain/estado_aprendizaje.dart';
-import 'package:miapp/features/senas/domain/posicion_mano.dart';
-import 'package:miapp/features/senas/domain/sena.dart';
+import 'package:miapp/core/utils/json_utils.dart';
+import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
+import 'package:miapp/features/senas/models/posicion_mano_model.dart';
+import 'package:miapp/features/senas/models/sena_model.dart';
 
 Sena ejemplo({
   EstadoAprendizaje? estado,
   List<int>? landmarks,
-  String? videoReferencia,
+  String? imagenReferencia,
 }) => Sena(
   id: 'sena-001',
   nombre: 'A',
@@ -21,7 +21,7 @@ Sena ejemplo({
     distanciaIndiceMedio: 2.1,
   ),
   estadoAprendizaje: estado ?? const NoIniciada(),
-  videoReferencia: videoReferencia,
+  imagenReferencia: imagenReferencia,
 );
 
 void main() {
@@ -29,7 +29,7 @@ void main() {
     test('una seña sobrevive la ida y vuelta a JSON sin perder nada', () {
       final original = ejemplo(
         estado: Dominada(DateTime.utc(2026, 8, 5, 14, 30), 0.93),
-        videoReferencia: 'https://ejemplo.co/videos/letra_a.mp4',
+        imagenReferencia: 'https://ejemplo.co/images/letra_a.png',
       );
 
       // Pasa por TEXTO, no solo por Map: así también se prueba que las
@@ -40,9 +40,9 @@ void main() {
       expect(vuelta, equals(original));
     });
 
-    test('una seña sin video se lee con videoReferencia en null', () {
-      final json = ejemplo().toJson()..remove('videoReferencia');
-      expect(Sena.fromJson(json).videoReferencia, isNull);
+    test('una seña sin imagen se lee con imagenReferencia en null', () {
+      final json = ejemplo().toJson()..remove('imagenReferencia');
+      expect(Sena.fromJson(json).imagenReferencia, isNull);
     });
 
     test('una seña sin nombre dice QUÉ campo falló, no solo que falló', () {

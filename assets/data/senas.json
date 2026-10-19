@@ -1,47 +1,895 @@
 [
   {
-    "id": "sena-001",
-    "nombre": "A",
+    "id": "alfa-a",
+    "nombre": "Letra A",
     "categoria": "Alfabeto",
-    "descripcion": "Puño cerrado con el pulgar apoyado al costado del índice.",
+    "descripcion": "Cierra el puño con el pulgar al costado, apoyado junto al índice. Los cuatro dedos quedan doblados hacia la palma.",
     "posicionReferencia": {
-      "landmarksClave": [4, 8, 12, 16, 20],
-      "anguloPulgar": 15.5,
-      "distanciaIndiceMedio": 2.1
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 26.0,
+      "distanciaIndiceMedio": 0.45
     },
     "estadoAprendizaje": {
       "tipo": "dominada",
-      "fechaDominada": "2026-08-05T14:30:00Z",
-      "precision": 0.93
-    },
-    "videoReferencia": "https://ejemplo.co/videos/letra_a.mp4"
+      "fechaDominada": "2025-01-14T12:00:00Z",
+      "precision": 0.95
+    }
   },
   {
-    "id": "sena-002",
+    "id": "alfa-b",
+    "nombre": "Letra B",
+    "categoria": "Alfabeto",
+    "descripcion": "Levanta los cuatro dedos juntos y rectos hacia arriba. El pulgar se cruza sobre la palma, tocando la base de los dedos.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 40.0,
+      "distanciaIndiceMedio": 0.62
+    },
+    "estadoAprendizaje": {
+      "tipo": "en_practica",
+      "intentos": 3,
+      "ultimoIntento": "2025-02-01T12:00:00Z"
+    }
+  },
+  {
+    "id": "alfa-c",
+    "nombre": "Letra C",
+    "categoria": "Alfabeto",
+    "descripcion": "Curva todos los dedos y el pulgar formando la forma de la letra C. La mano debe parecer que sostiene un vaso imaginario.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 18.0,
+      "distanciaIndiceMedio": 0.38
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-d",
+    "nombre": "Letra D",
+    "categoria": "Alfabeto",
+    "descripcion": "Extiende el índice hacia arriba. Los demás dedos se curvan y tocan la punta del pulgar formando un círculo.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 18.0,
+      "distanciaIndiceMedio": 0.59
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-e",
+    "nombre": "Letra E",
+    "categoria": "Alfabeto",
+    "descripcion": "Dobla los cuatro dedos sobre la palma con las puntas tocando el pulgar, que queda cruzado por debajo.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 26.3,
+      "distanciaIndiceMedio": 0.51
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-f",
+    "nombre": "Letra F",
+    "categoria": "Alfabeto",
+    "descripcion": "Une las puntas del pulgar y el índice formando un círculo. Los otros tres dedos quedan extendidos hacia arriba.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 19.4,
+      "distanciaIndiceMedio": 0.87
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-g",
+    "nombre": "Letra G",
+    "categoria": "Alfabeto",
+    "descripcion": "Señala hacia el lado con el índice extendido y el pulgar paralelo encima. Los demás dedos quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 56.6,
+      "distanciaIndiceMedio": 0.75
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-h",
+    "nombre": "Letra H",
+    "categoria": "Alfabeto",
+    "descripcion": "Extiende el índice y el medio juntos señalando hacia el lado. El pulgar y los otros dedos quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 24.9,
+      "distanciaIndiceMedio": 0.56
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-i",
+    "nombre": "Letra I",
+    "categoria": "Alfabeto",
+    "descripcion": "Cierra el puño y levanta solo el meñique. El pulgar descansa sobre los dedos doblados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 38.3,
+      "distanciaIndiceMedio": 0.7
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-j",
+    "nombre": "Letra J",
+    "categoria": "Alfabeto",
+    "descripcion": "Levanta el meñique como en la I y dibuja en el aire una letra J con la mano.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 51.7,
+      "distanciaIndiceMedio": 0.53
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-k",
+    "nombre": "Letra K",
+    "categoria": "Alfabeto",
+    "descripcion": "Extiende índice y medio en V hacia arriba y apoya la punta del pulgar entre ellos, sobre el nudillo del medio.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 16.5,
+      "distanciaIndiceMedio": 0.43
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-l",
+    "nombre": "Letra L",
+    "categoria": "Alfabeto",
+    "descripcion": "Extiende el índice hacia arriba y el pulgar hacia el lado, formando una L. Los demás dedos quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 14.8,
+      "distanciaIndiceMedio": 0.43
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-m",
+    "nombre": "Letra M",
+    "categoria": "Alfabeto",
+    "descripcion": "Cierra el puño y coloca el pulgar debajo de tres dedos (índice, medio y anular).",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 56.2,
+      "distanciaIndiceMedio": 0.72
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-n",
+    "nombre": "Letra N",
+    "categoria": "Alfabeto",
+    "descripcion": "Cierra el puño y coloca el pulgar debajo de dos dedos (índice y medio).",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 55.5,
+      "distanciaIndiceMedio": 0.74
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-o",
+    "nombre": "Letra O",
+    "categoria": "Alfabeto",
+    "descripcion": "Une las puntas de todos los dedos con la punta del pulgar formando una O.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 67.1,
+      "distanciaIndiceMedio": 0.49
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-p",
+    "nombre": "Letra P",
+    "categoria": "Alfabeto",
+    "descripcion": "Haz la seña de la K pero con la mano apuntando hacia abajo.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 63.0,
+      "distanciaIndiceMedio": 0.58
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-q",
+    "nombre": "Letra Q",
+    "categoria": "Alfabeto",
+    "descripcion": "Haz la seña de la G pero con la mano apuntando hacia abajo.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 57.9,
+      "distanciaIndiceMedio": 0.65
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-r",
+    "nombre": "Letra R",
+    "categoria": "Alfabeto",
+    "descripcion": "Levanta índice y medio cruzando el medio sobre el índice. Los demás dedos quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 57.6,
+      "distanciaIndiceMedio": 0.52
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-s",
+    "nombre": "Letra S",
+    "categoria": "Alfabeto",
+    "descripcion": "Cierra el puño con el pulgar cruzado por delante de los dedos doblados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 19.5,
+      "distanciaIndiceMedio": 0.58
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-t",
+    "nombre": "Letra T",
+    "categoria": "Alfabeto",
+    "descripcion": "Cierra el puño y asoma el pulgar entre el índice y el medio.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 65.9,
+      "distanciaIndiceMedio": 0.58
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-u",
+    "nombre": "Letra U",
+    "categoria": "Alfabeto",
+    "descripcion": "Levanta índice y medio juntos y rectos. Los demás dedos y el pulgar quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 32.5,
+      "distanciaIndiceMedio": 0.57
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-v",
+    "nombre": "Letra V",
+    "categoria": "Alfabeto",
+    "descripcion": "Levanta índice y medio separados formando una V. Los demás dedos y el pulgar quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 27.3,
+      "distanciaIndiceMedio": 0.42
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-w",
+    "nombre": "Letra W",
+    "categoria": "Alfabeto",
+    "descripcion": "Levanta índice, medio y anular separados. El pulgar sujeta el meñique contra la palma.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 22.2,
+      "distanciaIndiceMedio": 0.79
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-x",
+    "nombre": "Letra X",
+    "categoria": "Alfabeto",
+    "descripcion": "Cierra el puño y deja el índice doblado en forma de gancho.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 50.3,
+      "distanciaIndiceMedio": 0.46
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-y",
+    "nombre": "Letra Y",
+    "categoria": "Alfabeto",
+    "descripcion": "Extiende el pulgar y el meñique hacia los lados. Los otros tres dedos quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 60.3,
+      "distanciaIndiceMedio": 0.78
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "alfa-z",
+    "nombre": "Letra Z",
+    "categoria": "Alfabeto",
+    "descripcion": "Con el índice extendido, dibuja en el aire una letra Z.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 69.1,
+      "distanciaIndiceMedio": 0.63
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "sal-1",
     "nombre": "Hola",
     "categoria": "Saludos",
-    "descripcion": "Mano abierta cerca de la sien, se mueve levemente hacia afuera.",
+    "descripcion": "Levanta la mano abierta a la altura de la cara y muévela de lado a lado. Todos los dedos deben estar extendidos y juntos.",
     "posicionReferencia": {
-      "landmarksClave": [0, 4, 8, 12, 16, 20],
-      "anguloPulgar": 40.0,
-      "distanciaIndiceMedio": 3.4
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 15.0,
+      "distanciaIndiceMedio": 0.82
     },
-    "estadoAprendizaje": { "tipo": "no_iniciada" }
+    "estadoAprendizaje": {
+      "tipo": "dominada",
+      "fechaDominada": "2025-01-20T12:00:00Z",
+      "precision": 0.98
+    }
   },
   {
-    "id": "sena-003",
-    "nombre": "Emergencia",
-    "categoria": "Emergencias",
-    "descripcion": "Puño golpeando la palma abierta repetidamente.",
+    "id": "sal-2",
+    "nombre": "Gracias",
+    "categoria": "Saludos",
+    "descripcion": "El pulgar y el índice se tocan formando una pequeña pinza, mientras el resto de los dedos se mantienen suaves y relajados.",
     "posicionReferencia": {
-      "landmarksClave": [0, 5, 9, 13, 17],
-      "anguloPulgar": 8.0,
-      "distanciaIndiceMedio": 0.5
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16
+      ],
+      "anguloPulgar": 32.0,
+      "distanciaIndiceMedio": 0.54
+    },
+    "estadoAprendizaje": {
+      "tipo": "en_practica",
+      "intentos": 5,
+      "ultimoIntento": "2025-02-03T12:00:00Z"
+    }
+  },
+  {
+    "id": "sal-3",
+    "nombre": "Por favor",
+    "categoria": "Saludos",
+    "descripcion": "La mano se coloca frente al pecho con la palma hacia abajo y los dedos ligeramente curvados en un movimiento de gesto amable.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16
+      ],
+      "anguloPulgar": 24.0,
+      "distanciaIndiceMedio": 0.58
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-0",
+    "nombre": "Número 0",
+    "categoria": "Números",
+    "descripcion": "Une las puntas de todos los dedos con el pulgar formando un círculo, como una O.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 18.9,
+      "distanciaIndiceMedio": 0.39
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-1",
+    "nombre": "Número 1",
+    "categoria": "Números",
+    "descripcion": "Levanta solo el índice. Los demás dedos y el pulgar quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 52.0,
+      "distanciaIndiceMedio": 0.58
+    },
+    "estadoAprendizaje": {
+      "tipo": "dominada",
+      "fechaDominada": "2025-01-17T12:00:00Z",
+      "precision": 0.9
+    }
+  },
+  {
+    "id": "num-2",
+    "nombre": "Número 2",
+    "categoria": "Números",
+    "descripcion": "Levanta índice y medio separados formando una V. Los demás dedos quedan cerrados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 48.0,
+      "distanciaIndiceMedio": 0.7
+    },
+    "estadoAprendizaje": {
+      "tipo": "en_practica",
+      "intentos": 6,
+      "ultimoIntento": "2025-02-02T12:00:00Z"
+    }
+  },
+  {
+    "id": "num-3",
+    "nombre": "Número 3",
+    "categoria": "Números",
+    "descripcion": "Extiende el pulgar, el índice y el medio. El anular y el meñique quedan doblados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 60.0,
+      "distanciaIndiceMedio": 0.8
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-4",
+    "nombre": "Número 4",
+    "categoria": "Números",
+    "descripcion": "Levanta los cuatro dedos separados con el pulgar doblado sobre la palma.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 14.0,
+      "distanciaIndiceMedio": 0.37
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-5",
+    "nombre": "Número 5",
+    "categoria": "Números",
+    "descripcion": "Abre la mano con los cinco dedos extendidos y separados.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 10.5,
+      "distanciaIndiceMedio": 0.71
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-6",
+    "nombre": "Número 6",
+    "categoria": "Números",
+    "descripcion": "Toca la punta del pulgar con la del meñique. Los otros tres dedos quedan extendidos.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 15.2,
+      "distanciaIndiceMedio": 0.62
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-7",
+    "nombre": "Número 7",
+    "categoria": "Números",
+    "descripcion": "Toca la punta del pulgar con la del anular. Los otros tres dedos quedan extendidos.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 57.5,
+      "distanciaIndiceMedio": 0.57
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-8",
+    "nombre": "Número 8",
+    "categoria": "Números",
+    "descripcion": "Toca la punta del pulgar con la del medio. Los otros tres dedos quedan extendidos.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 48.6,
+      "distanciaIndiceMedio": 0.76
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "num-9",
+    "nombre": "Número 9",
+    "categoria": "Números",
+    "descripcion": "Toca la punta del pulgar con la del índice. Los otros tres dedos quedan extendidos.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 15.0,
+      "distanciaIndiceMedio": 0.62
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "emer-1",
+    "nombre": "Ayuda",
+    "categoria": "Emergencias",
+    "descripcion": "Cierra el puño con el pulgar levantado y colócalo sobre la palma de la otra mano abierta. Mueve ambas manos hacia arriba.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16
+      ],
+      "anguloPulgar": 70.0,
+      "distanciaIndiceMedio": 0.4
     },
     "estadoAprendizaje": {
       "tipo": "necesita_repaso",
-      "motivo": "Confundes el ángulo del pulgar con la seña de auxilio.",
-      "diasSinPracticar": 12
+      "motivo": "revisión breve",
+      "diasSinPracticar": 18
+    }
+  },
+  {
+    "id": "emer-2",
+    "nombre": "Emergencia",
+    "categoria": "Emergencias",
+    "descripcion": "Extiende todos los dedos y apoya la mano abierta en una posición firme, indicando alerta y atención inmediata.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16,
+        20
+      ],
+      "anguloPulgar": 12.0,
+      "distanciaIndiceMedio": 0.9
+    },
+    "estadoAprendizaje": {
+      "tipo": "no_iniciada"
+    }
+  },
+  {
+    "id": "emer-3",
+    "nombre": "Urgente",
+    "categoria": "Emergencias",
+    "descripcion": "Señala con el dedo índice hacia adelante y mantiene la otra mano cerrada con atención inmediata para avisar de peligro.",
+    "posicionReferencia": {
+      "landmarksClave": [
+        0,
+        5,
+        8,
+        12,
+        16
+      ],
+      "anguloPulgar": 35.0,
+      "distanciaIndiceMedio": 0.75
+    },
+    "estadoAprendizaje": {
+      "tipo": "en_practica",
+      "intentos": 2,
+      "ultimoIntento": "2025-02-05T12:00:00Z"
     }
   }
 ]

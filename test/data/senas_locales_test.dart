@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:miapp/core/json.dart';
-import 'package:miapp/features/senas/data/senas_locales.dart';
+import 'package:miapp/core/utils/json_utils.dart';
+import 'package:miapp/features/senas/services/senas_locales_service.dart';
 
 const _json = '''
 [
