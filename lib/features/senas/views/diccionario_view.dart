@@ -305,7 +305,7 @@ class _CategoriaTileState extends State<CategoriaTile> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${widget.categoriaSenas.length} de ${widget.categoriaSenas.length + 2} señas',
+                        '${widget.categoriaSenas.length} señas',
                         style: TextStyle(color: AppTheme.grey, fontSize: 13),
                       ),
                     ],

@@ -43,7 +43,7 @@ class EstabilizadorReconocimiento {
     _frames.addLast(valida ? clasificacion : null);
     if (_frames.length > ventana) _frames.removeFirst();
 
-    final conteo = <int, List<double>>{};
+    final conteo = <Object, List<double>>{};
     for (final f in _frames.whereType<ClasificacionNumero>()) {
       (conteo[f.numero] ??= []).add(f.confianza);
     }

@@ -26,7 +26,8 @@ class PracticaState {
   final String? errorMessage;
   final ResultadoReconocimiento resultado;
 
-  /// Puntaje 0-1 por dedo del último fotograma (pulgar a meñique), para calibrar.
+  /// Puntajes 0-1 del último fotograma, para calibrar: extensión por dedo
+  /// (pulgar a meñique) seguida del contacto pulgar-punta (índice a meñique).
   final List<double> extensiones;
 
   bool get isLoading =>

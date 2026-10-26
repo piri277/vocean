@@ -12,10 +12,11 @@ import 'package:miapp/features/senas/views/widgets/hand_landmarks_painter.dart';
 /// cámara, las suscripciones y la integración de MediaPipe están delegadas a
 /// [PracticaProvider] y [CameraDetectionService].
 class PracticaView extends ConsumerStatefulWidget {
-  const PracticaView({super.key, this.numeroObjetivo, this.imagenReferencia});
+  const PracticaView({super.key, this.objetivo, this.imagenReferencia});
 
-  /// Si se indica, la vista practica solo este número y arranca reconociendo.
-  final int? numeroObjetivo;
+  /// Si se indica, la vista practica solo esta seña (`int` número, `String`
+  /// letra) y arranca reconociendo.
+  final Object? objetivo;
 
   /// Asset de la seña objetivo, mostrado como referencia en la esquina.
   final String? imagenReferencia;
@@ -33,8 +34,8 @@ class _PracticaViewState extends ConsumerState<PracticaView>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final notifier = ref.read(practicaProvider.notifier);
       await notifier.initialize();
-      if (mounted && widget.numeroObjetivo != null) {
-        notifier.toggleReconocimiento(objetivo: widget.numeroObjetivo);
+      if (mounted && widget.objetivo != null) {
+        notifier.toggleReconocimiento(objetivo: widget.objetivo);
       }
     });
   }
@@ -60,14 +61,25 @@ class _PracticaViewState extends ConsumerState<PracticaView>
         children: [
           // ── Capa de la Cámara y Esqueleto ─────────────────────────
           if (state.isReady && state.controller != null)
+            // Recorta en vez de estirar: la vista previa conserva su proporción
+            // (previewSize viene en horizontal, de ahí el cambio alto/ancho).
             Positioned.fill(
-              child: CameraPreview(
-                state.controller!,
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: HandLandmarksPainter(
-                      hands: state.detectedHands,
-                      isFrontCamera: state.isFrontCamera,
+              child: ClipRect(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: state.controller!.value.previewSize?.height ?? 1,
+                    height: state.controller!.value.previewSize?.width ?? 1,
+                    child: CameraPreview(
+                      state.controller!,
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          painter: HandLandmarksPainter(
+                            hands: state.detectedHands,
+                            isFrontCamera: state.isFrontCamera,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -154,9 +166,9 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          widget.numeroObjetivo == null
+                          widget.objetivo == null
                               ? 'Práctica'
-                              : 'Practica el ${widget.numeroObjetivo}',
+                              : 'Practica ${_nombre(widget.objetivo!)}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -235,16 +247,18 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                       child: FilledButton.icon(
                         onPressed: () => ref
                             .read(practicaProvider.notifier)
-                            .toggleReconocimiento(
-                              objetivo: widget.numeroObjetivo,
-                            ),
+                            .toggleReconocimiento(objetivo: widget.objetivo),
                         icon: Icon(
                           state.reconociendo
                               ? Icons.stop_rounded
                               : Icons.play_arrow_rounded,
                         ),
                         label: Text(
-                          state.reconociendo ? 'Detener' : 'Reconocer números',
+                          state.reconociendo
+                              ? 'Detener'
+                              : widget.objetivo == null
+                              ? 'Reconocer números'
+                              : 'Reconocer seña',
                         ),
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFF136862),
@@ -282,10 +296,10 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                               _mensaje(
                                 state.resultado,
                                 state.hasHandsDetected,
-                                widget.numeroObjetivo,
+                                widget.objetivo,
                               ),
                               if (state.reconociendo &&
-                                  state.extensiones.length == 5)
+                                  state.extensiones.length == 9)
                                 _puntajes(state.extensiones),
                             ].join('\n'),
                             style: const TextStyle(
@@ -307,7 +321,11 @@ class _PracticaViewState extends ConsumerState<PracticaView>
   }
 }
 
-String _mensaje(ResultadoReconocimiento r, bool hayMano, int? objetivo) {
+// "el 3" o "la A".
+String _nombre(Object sena) =>
+    sena is String ? 'la ${sena.toUpperCase()}' : 'el $sena';
+
+String _mensaje(ResultadoReconocimiento r, bool hayMano, Object? objetivo) {
   final conf = '${(r.confianza * 100).round()}%';
   return switch (r.estado) {
     EstadoReconocimiento.detenido =>
@@ -315,20 +333,26 @@ String _mensaje(ResultadoReconocimiento r, bool hayMano, int? objetivo) {
     EstadoReconocimiento.sinMano => 'No se detecta ninguna mano',
     EstadoReconocimiento.manoParcial =>
       'Mano cortada: aléjala y céntrala en la cámara',
-    EstadoReconocimiento.analizando => 'Analizando… (¿${r.numero}?)',
+    EstadoReconocimiento.analizando =>
+      'Analizando… (¿${r.numero.toString().toUpperCase()}?)',
     EstadoReconocimiento.noReconocida =>
-      objetivo == null ? 'Seña no reconocida' : 'Aún no es el $objetivo',
+      objetivo == null
+          ? 'Seña no reconocida'
+          : 'Aún no es ${_nombre(objetivo)}',
     EstadoReconocimiento.confirmada =>
       objetivo == null
           ? 'Número ${r.numero} · confianza $conf'
-          : '¡Correcto! Número ${r.numero} · confianza $conf',
+          : '¡Correcto! Es ${_nombre(r.numero!)} · confianza $conf',
   };
 }
 
-// Puntaje por dedo para calibrar con manos reales: >0.5 cuenta como extendido.
-String _puntajes(List<double> ext) {
-  const nombres = ['P', 'I', 'M', 'A', 'Me'];
-  return [
-    for (var i = 0; i < 5; i++) '${nombres[i]} ${ext[i].toStringAsFixed(2)}',
+// Puntajes para calibrar con manos reales: >0.5 cuenta como extendido (1.ª
+// línea) o como pulgar tocando esa punta (2.ª línea).
+String _puntajes(List<double> p) {
+  const nombres = ['P', 'I', 'M', 'A', 'Me', 'P·I', 'P·M', 'P·A', 'P·Me'];
+  String fila(int desde, int hasta) => [
+    for (var i = desde; i < hasta; i++)
+      '${nombres[i]} ${p[i].toStringAsFixed(2)}',
   ].join('  ');
+  return '${fila(0, 5)}\n${fila(5, 9)}';
 }

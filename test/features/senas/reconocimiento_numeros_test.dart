@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miapp/features/senas/models/landmark_model.dart';
 import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 import 'package:miapp/features/senas/services/estabilizador_reconocimiento_service.dart';
 
@@ -10,6 +11,10 @@ import 'package:miapp/features/senas/services/estabilizador_reconocimiento_servi
 // medio, anular, meñique. `dorso`: el dorso mira a la cámara, así que la mano
 // se ve espejada y los dedos recogidos se ocultan tras los nudillos (z > 0).
 // `apoyoPulgar`: dónde descansa la punta del pulgar recogido.
+// `toca`: dedo (1 índice … 4 meñique) medio doblado cuya punta toca la del
+// pulgar, como en 6-9.
+const mcp = [(-0.3, -0.95), (0.0, -1.0), (0.28, -0.95), (0.55, -0.85)];
+
 List<Landmark> mano(
   List<bool> ext, {
   double escala = 0.2,
@@ -20,7 +25,12 @@ List<Landmark> mano(
   bool dorso = false,
   bool conZ = true,
   (double, double) apoyoPulgar = (-0.1, -0.7),
+  int? toca,
 }) {
+  if (toca != null) {
+    final (x, y) = mcp[toca - 1];
+    apoyoPulgar = (x - 0.25, y - 0.5);
+  }
   final rnd = math.Random(7);
   final pts = <(double, double, double)>[(0, 0, 0), (-0.3, -0.2, 0)];
   pts.addAll(
@@ -36,12 +46,13 @@ List<Landmark> mano(
             (apoyoPulgar.$1, apoyoPulgar.$2, dorso ? 0.1 : 0),
           ],
   );
-  const mcp = [(-0.3, -0.95), (0.0, -1.0), (0.28, -0.95), (0.55, -0.85)];
   for (var i = 0; i < 4; i++) {
     final (x, y) = mcp[i];
     pts.add((x, y, 0));
     pts.addAll(
-      ext[i + 1]
+      toca == i + 1
+          ? [(x, y - 0.4, 0), (x - 0.15, y - 0.55, 0), (x - 0.25, y - 0.5, 0)]
+          : ext[i + 1]
           ? [(x, y - 0.45, 0), (x, y - 0.75, 0), (x, y - 1.0, 0)]
           : dorso
           ? [(x, y - 0.4, 0), (x, y - 0.4, 0.2), (x, y - 0.3, 0.2)]
@@ -121,6 +132,50 @@ void main() {
       expect(r?.numero, 3);
     });
 
+    for (final (numero, dedo) in [(6, 4), (7, 3), (8, 2), (9, 1)]) {
+      test('reconoce el $numero (pulgar toca el dedo $dedo)', () {
+        final ext = [false, for (var i = 1; i <= 4; i++) i != dedo];
+        for (final dorso in [false, true]) {
+          for (final giro in [-0.5, 0.0, 0.6]) {
+            final r = clasificador.clasificar(
+              mano(ext, toca: dedo, dorso: dorso, giro: giro, ruido: 0.002),
+            );
+            expect(r?.numero, numero, reason: 'dorso=$dorso giro=$giro');
+            expect(r!.confianza, greaterThan(0.75));
+          }
+        }
+      });
+    }
+
+    test('con objetivo solo puntúa ese número', () {
+      const ext = [0.1, 0.9, 0.9, 0.9, 0.1];
+      const cont = [0.0, 0.0, 0.0, 0.9];
+      expect(
+        clasificador.desdeExtensiones(ext, contactos: cont, solo: 6)?.numero,
+        6,
+      );
+      expect(
+        clasificador.desdeExtensiones(ext, contactos: cont, solo: 3)?.numero,
+        3,
+      );
+      expect(
+        clasificador.desdeExtensiones(ext, contactos: cont, solo: 2),
+        isNull,
+      );
+    });
+
+    test('sin tres dedos extendidos el contacto no basta', () {
+      expect(
+        clasificador
+            .desdeExtensiones(
+              [0.1, 0.1, 0.9, 0.9, 0.1],
+              contactos: const [0.0, 0.0, 0.0, 0.9],
+            )
+            ?.numero,
+        isNot(6),
+      );
+    });
+
     test('un dedo dudoso no anula el resto', () {
       final r = clasificador.desdeExtensiones([0.1, 0.9, 0.9, 0.55, 0.1]);
       expect(r?.numero, 3);
@@ -148,6 +203,80 @@ void main() {
 
     test('menos de 21 puntos no se clasifica', () {
       expect(clasificador.clasificar(mano(numeros[1]!).sublist(0, 10)), isNull);
+    });
+  });
+
+  group('letras', () {
+    const letras = ClasificadorLetras();
+    const puno = [false, false, false, false, false];
+
+    test('soporta las letras pedidas', () {
+      expect(ClasificadorLetras.letrasSoportadas.toSet(), {
+        ...'abcdefiklmnopqrtuvwxy'.split(''),
+      });
+    });
+
+    test('reconoce l, y, i, w y b', () {
+      final casos = {
+        'l': mano([true, true, false, false, false]),
+        'y': mano([true, false, false, false, true]),
+        'i': mano([false, false, false, false, true]),
+        'w': mano([false, true, true, true, false], apoyoPulgar: (0.5, -1.15)),
+        'b': mano([false, true, true, true, true]),
+      };
+      for (final e in casos.entries) {
+        expect(letras.puntuar(e.key, e.value)?.numero, e.key, reason: e.key);
+      }
+    });
+
+    test('dedos juntos son U, no V ni R', () {
+      final m = mano([false, true, true, false, false]);
+      expect(letras.puntuar('u', m)?.numero, 'u');
+      expect(letras.puntuar('v', m), isNull);
+      expect(letras.puntuar('r', m), isNull);
+    });
+
+    test('la posición del pulgar en el puño distingue A, T, N y M', () {
+      final casos = {
+        'a': (-0.45, -1.0),
+        't': (-0.15, -0.9),
+        'n': (0.14, -0.9),
+        'm': (0.41, -0.88),
+      };
+      for (final e in casos.entries) {
+        final m = mano(puno, apoyoPulgar: e.value);
+        for (final l in casos.keys) {
+          expect(
+            letras.puntuar(l, m) != null,
+            l == e.key,
+            reason: 'pulgar de ${e.key} probado como $l',
+          );
+        }
+      }
+    });
+
+    test('K hacia arriba y P hacia abajo', () {
+      Landmark? fuera(List<Landmark> m) =>
+          m.where((l) => l.y < 0 || l.y > 1).firstOrNull;
+      final arriba = mano(
+        [false, true, true, false, false],
+        apoyoPulgar: (0.0, -1.3),
+      );
+      final abajo = mano(
+        [false, true, true, false, false],
+        apoyoPulgar: (0.0, -1.3),
+        giro: math.pi,
+        cy: 0.3,
+      );
+      expect(fuera(abajo), isNull);
+      expect(letras.puntuar('k', arriba)?.numero, 'k');
+      expect(letras.puntuar('p', arriba), isNull);
+      expect(letras.puntuar('p', abajo)?.numero, 'p');
+      expect(letras.puntuar('k', abajo), isNull);
+    });
+
+    test('mano incompleta no puntúa', () {
+      expect(letras.puntuar('l', mano(numeros[5]!, cx: 0.95)), isNull);
     });
   });
 

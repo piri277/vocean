@@ -19,7 +19,8 @@ enum EstadoReconocimiento {
 class ClasificacionNumero {
   const ClasificacionNumero(this.numero, this.confianza);
 
-  final int numero;
+  /// `int` para números y `String` (minúscula) para letras.
+  final Object numero;
 
   /// 0.0 a 1.0. Es un puntaje geométrico, no una probabilidad calibrada.
   final double confianza;
@@ -36,7 +37,7 @@ class ResultadoReconocimiento {
   final EstadoReconocimiento estado;
 
   /// Solo no nulo cuando [estado] es `analizando` o `confirmada`.
-  final int? numero;
+  final Object? numero;
   final double confianza;
 
   bool get confirmada => estado == EstadoReconocimiento.confirmada;

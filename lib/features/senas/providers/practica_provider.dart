@@ -6,6 +6,7 @@ import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
 import 'package:miapp/features/senas/providers/practica_state.dart';
 import 'package:miapp/features/senas/services/audio_numeros_service.dart';
 import 'package:miapp/features/senas/services/camera_detection_service.dart';
+import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 import 'package:miapp/features/senas/services/estabilizador_reconocimiento_service.dart';
 
@@ -42,12 +43,14 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
   final AudioNumerosService _audio;
   final EstabilizadorReconocimiento _estabilizador;
   final _clasificador = const ClasificadorNumeros();
+  final _letras = const ClasificadorLetras();
   StreamSubscription<List<List<Offset>>>? _handsSubscription;
   StreamSubscription<List<List<Landmark>>>? _landmarksSubscription;
-  int? _ultimoAnunciado;
+  Object? _ultimoAnunciado;
 
-  /// Si no es null, solo se acepta este número (práctica de una seña).
-  int? _objetivo;
+  /// Si no es null, solo se acepta esta seña: `int` para un número o `String`
+  /// para una letra (práctica de una seña).
+  Object? _objetivo;
 
   void _initHandsListener() {
     _handsSubscription = _cameraService.handsStream.listen((hands) {
@@ -58,7 +61,7 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
   }
 
   /// Inicia o detiene la clasificación de números sobre el stream de landmarks.
-  void toggleReconocimiento({int? objetivo}) {
+  void toggleReconocimiento({Object? objetivo}) {
     if (state.reconociendo) {
       _landmarksSubscription?.cancel();
       _landmarksSubscription = null;
@@ -89,26 +92,43 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
     final ext = mano == null || parcial || mano.length < 21
         ? const <double>[]
         : _clasificador.extensiones(mano, aspecto: aspecto);
+    final cont = ext.isEmpty
+        ? const <double>[]
+        : _clasificador.contactos(mano!, aspecto: aspecto);
+    // Con objetivo solo se puntúa ese número; cualquier otro queda en null.
     final clasificacion = ext.isEmpty
         ? null
-        : _clasificador.desdeExtensiones(ext);
+        : switch (_objetivo) {
+            final String letra => _letras.puntuar(
+              letra,
+              mano!,
+              aspecto: aspecto,
+            ),
+            final int? n => _clasificador.desdeExtensiones(
+              ext,
+              contactos: cont,
+              solo: n,
+            ),
+            _ => null,
+          };
     final resultado = _estabilizador.actualizar(
       hayMano: mano != null,
       parcial: parcial,
-      // Con objetivo, cualquier otro número cuenta como no reconocido.
-      clasificacion: _objetivo == null || clasificacion?.numero == _objetivo
-          ? clasificacion
-          : null,
+      clasificacion: clasificacion,
     );
 
     // Un audio por seña confirmada; se rearma al perder la mano.
     if (resultado.confirmada && resultado.numero != _ultimoAnunciado) {
       _ultimoAnunciado = resultado.numero;
-      _audio.reproducir(resultado.numero!);
+      // Solo hay audios de números.
+      if (resultado.numero case final int n) _audio.reproducir(n);
     } else if (resultado.estado == EstadoReconocimiento.sinMano) {
       _ultimoAnunciado = null;
     }
-    state = state.copyWith(resultado: resultado, extensiones: ext);
+    state = state.copyWith(
+      resultado: resultado,
+      extensiones: [...ext, ...cont],
+    );
   }
 
   /// Inicializa la cámara y la detección con MediaPipe.

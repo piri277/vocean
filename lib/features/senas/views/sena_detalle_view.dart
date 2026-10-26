@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/providers/senas_provider.dart';
+import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 import 'package:miapp/features/senas/views/practica_view.dart';
 
@@ -24,7 +25,14 @@ class SenaDetalleView extends ConsumerWidget {
     final numero = senaId.startsWith('num-')
         ? int.tryParse(senaId.substring(4))
         : null;
-    final practicable = ClasificadorNumeros.numerosSoportados.contains(numero);
+    final letra = senaId.startsWith('alfa-') ? senaId.substring(5) : null;
+    final Object? objetivo =
+        ClasificadorNumeros.numerosSoportados.contains(numero)
+        ? numero
+        : ClasificadorLetras.letrasSoportadas.contains(letra)
+        ? letra
+        : null;
+    final practicable = objetivo != null;
 
     return Scaffold(
       backgroundColor: AppTheme.bgCream,
@@ -129,7 +137,7 @@ class SenaDetalleView extends ConsumerWidget {
                           context,
                           MaterialPageRoute<void>(
                             builder: (_) => PracticaView(
-                              numeroObjetivo: numero,
+                              objetivo: objetivo,
                               imagenReferencia: imagen,
                             ),
                           ),
