@@ -3,11 +3,13 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 
-from app.api.dependencies import get_current_user, get_db
+from app.api.dependencies import get_current_user, get_db, validar_fecha_local
+from app.core.progreso import siguiente_progreso
 from app.schemas.estado_aprendizaje import (
     EstadoAprendizajeResponse,
     EstadoAprendizajeUpdate,
     EstadoTipo,
+    PracticaSenaRegistro,
 )
 
 router = APIRouter(prefix="/progreso", tags=["Progreso"])
@@ -106,3 +108,69 @@ async def actualizar_progreso_sena(
             detail=f"Error al actualizar progreso: {str(e)}",
         )
 
+
+
+@router.post("/{sena_id}/practica", response_model=EstadoAprendizajeResponse)
+async def registrar_practica_sena(
+    sena_id: str,
+    datos: PracticaSenaRegistro,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Client = Depends(get_db),
+):
+    """
+    Registra una práctica de la seña: abrirla la pasa a 'en_practica' y cada
+    día distinto con un acierto la acerca a 'dominada' (ver app.core.progreso).
+    `intentos` guarda los días con acierto y `ultimo_intento` el último de ellos.
+    """
+    validar_fecha_local(datos.fecha)
+    user_id = current_user["id"]
+
+    sena_check = db.table("sena").select("id").eq("id", sena_id).limit(1).execute()
+    if not sena_check.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"La seña con ID '{sena_id}' no existe en el catálogo.",
+        )
+
+    actual_res = (
+        db.table("estado_aprendizaje")
+        .select("*")
+        .eq("usuario_id", user_id)
+        .eq("sena_id", sena_id)
+        .limit(1)
+        .execute()
+    )
+    actual = actual_res.data[0] if actual_res.data else {}
+    ultimo = actual.get("ultimo_intento")
+    tipo_previo = actual.get("tipo", EstadoTipo.no_iniciada.value)
+
+    tipo, dias, ultimo_dia = siguiente_progreso(
+        tipo_previo,
+        actual.get("intentos") or 0,
+        datetime.fromisoformat(ultimo).date() if ultimo else None,
+        datos.fecha,
+        datos.acierto,
+    )
+
+    ahora = datetime.now(timezone.utc).isoformat()
+    recien_dominada = tipo == EstadoTipo.dominada.value and tipo_previo != tipo
+    registro = {
+        "usuario_id": user_id,
+        "sena_id": sena_id,
+        "tipo": tipo,
+        "intentos": dias,
+        "ultimo_intento": ultimo_dia.isoformat() if ultimo_dia else None,
+        "fecha_dominada": ahora if recien_dominada else actual.get("fecha_dominada"),
+        "precision": datos.precision if recien_dominada else actual.get("precision"),
+        "motivo": None,
+        "dias_sin_practicar": 0,
+        "actualizado_en": ahora,
+    }
+
+    response = db.table("estado_aprendizaje").upsert(registro, on_conflict="usuario_id,sena_id").execute()
+    if not response.data:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo registrar la práctica de la seña.",
+        )
+    return response.data[0]

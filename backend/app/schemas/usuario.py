@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 
@@ -21,6 +21,14 @@ class UsuarioResponse(BaseModel):
     xp_total: int
     partidas_jugadas: int
     racha_global_maxima: int
+    # Con default para no romper antes de aplicar migracion_racha_dias.sql.
+    racha_dias: int = 0
+    ultima_practica: Optional[date] = None
     fecha_ultima_actividad: datetime
     creado_en: datetime
 
+
+
+class PracticaRegistro(BaseModel):
+    # Fecha local del dispositivo: el día cambia a medianoche del usuario, no en UTC.
+    fecha: date

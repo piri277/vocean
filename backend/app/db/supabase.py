@@ -1,6 +1,7 @@
 from typing import Optional
-from supabase import create_client, Client
-from supabase.lib.client_options import ClientOptions
+# ClientOptions de `supabase` es la variante síncrona; la de supabase.lib es
+# la base y create_client falla con ella ('no attribute storage').
+from supabase import ClientOptions, create_client, Client
 from app.core.config import settings
 
 # Cliente con permisos administrativos (Service Role)

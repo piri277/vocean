@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, Field, model_validator
@@ -39,3 +39,12 @@ class EstadoAprendizajeResponse(BaseModel):
     dias_sin_practicar: Optional[int] = None
     actualizado_en: datetime
 
+
+
+class PracticaSenaRegistro(BaseModel):
+    # Fecha local del dispositivo: el día cambia a medianoche del usuario.
+    fecha: date
+    # False al abrir la práctica; True cuando la app reconoce la seña.
+    acierto: bool = False
+    # Confianza del reconocimiento; se guarda como precisión al dominarla.
+    precision: Optional[float] = Field(default=None, ge=0.0, le=1.0)

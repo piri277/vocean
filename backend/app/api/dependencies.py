@@ -1,3 +1,4 @@
+from datetime import date, datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -66,3 +67,16 @@ def get_db(current_user: Dict[str, Any] = Depends(get_current_user)) -> Client:
     """
     return get_user_supabase_client(access_token=current_user["token"])
 
+
+
+def validar_fecha_local(fecha: date) -> None:
+    """
+    Rechaza una fecha local del dispositivo que no puede ser "hoy" en ninguna
+    zona horaria (van de UTC-12 a UTC+14), para que no se falsee la racha.
+    """
+    hoy_utc = datetime.now(timezone.utc).date()
+    if abs((fecha - hoy_utc).days) > 1:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="La fecha de práctica no corresponde al día actual.",
+        )
