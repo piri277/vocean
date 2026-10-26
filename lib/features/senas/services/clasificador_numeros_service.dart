@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:miapp/features/senas/models/landmark_model.dart';
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 
 /// Clasifica los números estáticos 1-9 de LSC a partir de los 21 landmarks.
 ///
@@ -109,7 +109,7 @@ class ClasificadorNumeros {
 
   /// Mejor número para el fotograma, o null si no hay mano completa o ningún
   /// patrón coincide.
-  ClasificacionNumero? clasificar(List<Landmark> puntos, {double aspecto = 1}) {
+  ClasificacionSena? clasificar(List<Landmark> puntos, {double aspecto = 1}) {
     if (puntos.length < 21 || esParcial(puntos)) return null;
     return desdeExtensiones(
       extensiones(puntos, aspecto: aspecto),
@@ -122,7 +122,7 @@ class ClasificadorNumeros {
   /// [contactos] no se evalúan 6-9. Con [solo] se puntúa únicamente ese número,
   /// así una seña parecida (3 con el pulgar en el meñique frente a 6) no le
   /// gana a la que se practica.
-  ClasificacionNumero? desdeExtensiones(
+  ClasificacionSena? desdeExtensiones(
     List<double> ext, {
     List<double> contactos = const [],
     int? solo,
@@ -145,14 +145,14 @@ class ClasificadorNumeros {
             ],
           ),
     ];
-    ClasificacionNumero? mejor;
+    ClasificacionSena? mejor;
     for (final (numero, coincidencias) in candidatos) {
       if (solo != null && numero != solo) continue;
       if (coincidencias.any((c) => c < 0.5)) continue;
       final confianza =
           coincidencias.reduce((a, b) => a + b) / coincidencias.length;
       if (mejor == null || confianza > mejor.confianza) {
-        mejor = ClasificacionNumero(numero, confianza);
+        mejor = ClasificacionSena(numero, confianza);
       }
     }
     return mejor;

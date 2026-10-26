@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/features/senas/models/landmark_model.dart';
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 import 'package:miapp/features/senas/providers/practica_state.dart';
 import 'package:miapp/features/senas/services/audio_numeros_service.dart';
 import 'package:miapp/features/senas/services/camera_detection_service.dart';
@@ -60,7 +60,7 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
     });
   }
 
-  /// Inicia o detiene la clasificación de números sobre el stream de landmarks.
+  /// Inicia o detiene la clasificación de señas sobre el stream de landmarks.
   void toggleReconocimiento({Object? objetivo}) {
     if (state.reconociendo) {
       _landmarksSubscription?.cancel();
@@ -95,7 +95,7 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
     final cont = ext.isEmpty
         ? const <double>[]
         : _clasificador.contactos(mano!, aspecto: aspecto);
-    // Con objetivo solo se puntúa ese número; cualquier otro queda en null.
+    // Con objetivo solo se puntúa esa seña; cualquier otro queda en null.
     final clasificacion = ext.isEmpty
         ? null
         : switch (_objetivo) {
@@ -118,10 +118,10 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
     );
 
     // Un audio por seña confirmada; se rearma al perder la mano.
-    if (resultado.confirmada && resultado.numero != _ultimoAnunciado) {
-      _ultimoAnunciado = resultado.numero;
+    if (resultado.confirmada && resultado.sena != _ultimoAnunciado) {
+      _ultimoAnunciado = resultado.sena;
       // Solo hay audios de números.
-      if (resultado.numero case final int n) _audio.reproducir(n);
+      if (resultado.sena case final int n) _audio.reproducir(n);
     } else if (resultado.estado == EstadoReconocimiento.sinMano) {
       _ultimoAnunciado = null;
     }

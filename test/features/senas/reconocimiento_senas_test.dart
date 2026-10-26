@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miapp/features/senas/models/landmark_model.dart';
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 import 'package:miapp/features/senas/services/estabilizador_reconocimiento_service.dart';
@@ -84,7 +84,7 @@ void main() {
     for (final e in numeros.entries) {
       test('reconoce el ${e.key}', () {
         final r = clasificador.clasificar(mano(e.value));
-        expect(r?.numero, e.key);
+        expect(r?.sena, e.key);
         expect(r!.confianza, greaterThan(0.75));
       });
     }
@@ -96,7 +96,7 @@ void main() {
             final r = clasificador.clasificar(
               mano(e.value, giro: giro, escala: escala, ruido: 0.002),
             );
-            expect(r?.numero, e.key, reason: '${e.key} giro=$giro esc=$escala');
+            expect(r?.sena, e.key, reason: '${e.key} giro=$giro esc=$escala');
           }
         }
       }
@@ -109,7 +109,7 @@ void main() {
             final r = clasificador.clasificar(
               mano(e.value, dorso: true, conZ: conZ, giro: giro, ruido: 0.002),
             );
-            expect(r?.numero, e.key, reason: '${e.key} z=$conZ giro=$giro');
+            expect(r?.sena, e.key, reason: '${e.key} z=$conZ giro=$giro');
             expect(r!.confianza, greaterThan(0.75));
           }
         }
@@ -121,7 +121,7 @@ void main() {
         final r = clasificador.clasificar(
           mano(numeros[3]!, apoyoPulgar: (0.5, -1.15), dorso: dorso),
         );
-        expect(r?.numero, 3, reason: 'dorso=$dorso');
+        expect(r?.sena, 3, reason: 'dorso=$dorso');
       }
     });
 
@@ -129,7 +129,7 @@ void main() {
       final r = clasificador.clasificar(
         mano([true, true, true, false, false], apoyoPulgar: (0.4, -0.9)),
       );
-      expect(r?.numero, 3);
+      expect(r?.sena, 3);
     });
 
     for (final (numero, dedo) in [(6, 4), (7, 3), (8, 2), (9, 1)]) {
@@ -140,7 +140,7 @@ void main() {
             final r = clasificador.clasificar(
               mano(ext, toca: dedo, dorso: dorso, giro: giro, ruido: 0.002),
             );
-            expect(r?.numero, numero, reason: 'dorso=$dorso giro=$giro');
+            expect(r?.sena, numero, reason: 'dorso=$dorso giro=$giro');
             expect(r!.confianza, greaterThan(0.75));
           }
         }
@@ -151,11 +151,11 @@ void main() {
       const ext = [0.1, 0.9, 0.9, 0.9, 0.1];
       const cont = [0.0, 0.0, 0.0, 0.9];
       expect(
-        clasificador.desdeExtensiones(ext, contactos: cont, solo: 6)?.numero,
+        clasificador.desdeExtensiones(ext, contactos: cont, solo: 6)?.sena,
         6,
       );
       expect(
-        clasificador.desdeExtensiones(ext, contactos: cont, solo: 3)?.numero,
+        clasificador.desdeExtensiones(ext, contactos: cont, solo: 3)?.sena,
         3,
       );
       expect(
@@ -171,20 +171,20 @@ void main() {
               [0.1, 0.1, 0.9, 0.9, 0.1],
               contactos: const [0.0, 0.0, 0.0, 0.9],
             )
-            ?.numero,
+            ?.sena,
         isNot(6),
       );
     });
 
     test('un dedo dudoso no anula el resto', () {
       final r = clasificador.desdeExtensiones([0.1, 0.9, 0.9, 0.55, 0.1]);
-      expect(r?.numero, 3);
+      expect(r?.sena, 3);
       expect(r!.confianza, greaterThan(0.75));
     });
 
     test('un dedo del lado equivocado descarta el número', () {
       expect(
-        clasificador.desdeExtensiones([0.1, 0.9, 0.45, 0.1, 0.1])?.numero,
+        clasificador.desdeExtensiones([0.1, 0.9, 0.45, 0.1, 0.1])?.sena,
         1,
       );
       expect(clasificador.desdeExtensiones([0.6, 0.9, 0.1, 0.1, 0.1]), isNull);
@@ -212,7 +212,7 @@ void main() {
 
     test('soporta las letras pedidas', () {
       expect(ClasificadorLetras.letrasSoportadas.toSet(), {
-        ...'abcdefiklmnopqrtuvwxy'.split(''),
+        ...'abciloprvwy'.split(''),
       });
     });
 
@@ -225,54 +225,34 @@ void main() {
         'b': mano([false, true, true, true, true]),
       };
       for (final e in casos.entries) {
-        expect(letras.puntuar(e.key, e.value)?.numero, e.key, reason: e.key);
+        expect(letras.puntuar(e.key, e.value)?.sena, e.key, reason: e.key);
       }
     });
 
-    test('dedos juntos son U, no V ni R', () {
+    test('dedos juntos no son V ni R', () {
       final m = mano([false, true, true, false, false]);
-      expect(letras.puntuar('u', m)?.numero, 'u');
       expect(letras.puntuar('v', m), isNull);
       expect(letras.puntuar('r', m), isNull);
     });
 
-    test('la posición del pulgar en el puño distingue A, T, N y M', () {
-      final casos = {
-        'a': (-0.45, -1.0),
-        't': (-0.15, -0.9),
-        'n': (0.14, -0.9),
-        'm': (0.41, -0.88),
-      };
-      for (final e in casos.entries) {
-        final m = mano(puno, apoyoPulgar: e.value);
-        for (final l in casos.keys) {
-          expect(
-            letras.puntuar(l, m) != null,
-            l == e.key,
-            reason: 'pulgar de ${e.key} probado como $l',
-          );
-        }
-      }
+    test('A solo con el pulgar al costado del índice', () {
+      expect(
+        letras.puntuar('a', mano(puno, apoyoPulgar: (-0.45, -1.0))),
+        isNotNull,
+      );
+      expect(
+        letras.puntuar('a', mano(puno, apoyoPulgar: (0.14, -0.9))),
+        isNull,
+      );
     });
 
-    test('K hacia arriba y P hacia abajo', () {
-      Landmark? fuera(List<Landmark> m) =>
-          m.where((l) => l.y < 0 || l.y > 1).firstOrNull;
-      final arriba = mano(
-        [false, true, true, false, false],
-        apoyoPulgar: (0.0, -1.3),
-      );
-      final abajo = mano(
-        [false, true, true, false, false],
-        apoyoPulgar: (0.0, -1.3),
-        giro: math.pi,
-        cy: 0.3,
-      );
-      expect(fuera(abajo), isNull);
-      expect(letras.puntuar('k', arriba)?.numero, 'k');
+    test('P solo con la mano hacia abajo', () {
+      const ve = [false, true, true, false, false];
+      final arriba = mano(ve, apoyoPulgar: (0.0, -1.3));
+      final abajo = mano(ve, apoyoPulgar: (0.0, -1.3), giro: math.pi, cy: 0.3);
+      expect(abajo.every((l) => l.y >= 0 && l.y <= 1), isTrue);
+      expect(letras.puntuar('p', abajo)?.sena, 'p');
       expect(letras.puntuar('p', arriba), isNull);
-      expect(letras.puntuar('p', abajo)?.numero, 'p');
-      expect(letras.puntuar('k', abajo), isNull);
     });
 
     test('mano incompleta no puntúa', () {
@@ -281,12 +261,12 @@ void main() {
   });
 
   group('estabilizador', () {
-    const uno = ClasificacionNumero(1, 0.9);
-    const dos = ClasificacionNumero(2, 0.9);
+    const uno = ClasificacionSena(1, 0.9);
+    const dos = ClasificacionSena(2, 0.9);
     late EstabilizadorReconocimiento est;
     setUp(() => est = EstabilizadorReconocimiento());
 
-    ResultadoReconocimiento alimentar(int n, ClasificacionNumero? c) {
+    ResultadoReconocimiento alimentar(int n, ClasificacionSena? c) {
       late ResultadoReconocimiento r;
       for (var i = 0; i < n; i++) {
         r = est.actualizar(hayMano: c != null, clasificacion: c);
@@ -302,23 +282,23 @@ void main() {
     test('un frame suelto no cambia el número confirmado', () {
       alimentar(8, uno);
       final r = est.actualizar(hayMano: true, clasificacion: dos);
-      expect(r.numero, 1);
+      expect(r.sena, 1);
       expect(r.confirmada, isTrue);
     });
 
     test('cambio de número requiere frames consistentes', () {
       alimentar(10, uno);
       var r = alimentar(3, dos);
-      expect(r.numero == 2 && r.confirmada, isFalse);
+      expect(r.sena == 2 && r.confirmada, isFalse);
       r = alimentar(4, dos);
-      expect(r.numero, 2);
+      expect(r.sena, 2);
       expect(r.confirmada, isTrue);
     });
 
     test('confianza bajo el umbral no cuenta', () {
-      final r = alimentar(10, const ClasificacionNumero(1, 0.6));
+      final r = alimentar(10, const ClasificacionSena(1, 0.6));
       expect(r.estado, EstadoReconocimiento.noReconocida);
-      expect(r.numero, isNull);
+      expect(r.sena, isNull);
     });
 
     test('sin mano termina en sinMano', () {

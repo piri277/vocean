@@ -20,8 +20,13 @@ class DiccionarioView extends ConsumerWidget {
     final categorias = _agruparPorCategoria(senas);
     final authState = ref.watch(authNotifierProvider);
 
+    final usuario = ref.watch(usuarioProvider);
+    final racha = usuario?.rachaVigente(DateTime.now()) ?? 0;
+    // Sin backend, el nombre del registro guardado en la sesión de Supabase.
     final nombreUsuario =
-        ref.watch(usuarioProvider)?.nombre ??
+        usuario?.nombre ??
+        ref.read(authServiceProvider).usuarioActual?.userMetadata?['nombre']
+            as String? ??
         switch (authState) {
           AuthAuthenticated(:final email) =>
             email.contains('@') ? email.split('@').first : email,
@@ -72,13 +77,17 @@ class DiccionarioView extends ConsumerWidget {
                       color: const Color(0xFFE2F4EC),
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Text('🔥', style: TextStyle(fontSize: 16)),
-                        SizedBox(width: 4),
+                        const Text('🔥', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 4),
                         Text(
-                          'Activo',
-                          style: TextStyle(
+                          switch (racha) {
+                            0 => 'Aún no tienes racha activa',
+                            1 => '1 día',
+                            _ => '$racha días',
+                          },
+                          style: const TextStyle(
                             color: AppTheme.darkTeal,
                             fontSize: 13,
                             fontWeight: FontWeight.w800,

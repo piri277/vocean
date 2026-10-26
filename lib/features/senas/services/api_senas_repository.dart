@@ -1,21 +1,21 @@
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:miapp/core/network/api_client.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/models/posicion_mano_model.dart';
 import 'package:miapp/features/senas/models/sena_model.dart';
 import 'package:miapp/features/senas/services/senas_locales_service.dart';
 import 'package:miapp/features/senas/services/senas_repository.dart';
 
-/// Implementación de [SenasRepository] conectada directamente a Supabase PostgreSQL.
+/// Implementación de [SenasRepository] sobre el backend (`/senas` y `/progreso`).
 ///
 /// Obtiene el catálogo global de señas con sus posiciones de referencia anatómicas
-/// y las combina de forma transparente con el estado de aprendizaje del usuario actual.
+/// y las combina con el estado de aprendizaje del usuario actual.
 /// En caso de pérdida de conexión, cuenta con fallback a los assets locales.
-class SupabaseSenasRepository implements SenasRepository {
-  SupabaseSenasRepository(this._client, {SenasRepository? fallback})
+class ApiSenasRepository implements SenasRepository {
+  ApiSenasRepository(this._api, {SenasRepository? fallback})
     : _fallback = fallback ?? SenasLocales();
 
-  final SupabaseClient _client;
+  final ApiClient _api;
   final SenasRepository _fallback;
 
   List<Sena>? _cache;
@@ -28,22 +28,14 @@ class SupabaseSenasRepository implements SenasRepository {
     }
 
     try {
-      final rows = await _client
-          .from('sena')
-          .select('*, posicion_referencia(*)')
-          .order('nombre');
-
-      final user = _client.auth.currentUser;
+      final rows = await _api.get('/senas', query: {'limite': '500'});
       final progresoMap = <String, Map<String, dynamic>>{};
 
-      if (user != null) {
+      if (_api.haySesion) {
         try {
-          final progresoRows = await _client
-              .from('estado_aprendizaje')
-              .select()
-              .eq('usuario_id', user.id);
+          final progresoRows = await _api.get('/progreso') as List;
 
-          for (final row in progresoRows) {
+          for (final row in progresoRows.cast<Map<String, dynamic>>()) {
             final sId = row['sena_id'] as String?;
             if (sId != null) {
               progresoMap[sId] = row;
@@ -63,10 +55,7 @@ class SupabaseSenasRepository implements SenasRepository {
         final videoReferencia = item['video_referencia'] as String?;
 
         // Mapear posición de referencia anatómica
-        final posData = item['posicion_referencia'];
-        final posMap = (posData is List && posData.isNotEmpty)
-            ? posData.first as Map<String, dynamic>
-            : (posData is Map<String, dynamic> ? posData : null);
+        final posMap = item['posicion_referencia'] as Map<String, dynamic>?;
 
         final posicion = posMap != null
             ? PosicionMano(
@@ -132,7 +121,7 @@ class SupabaseSenasRepository implements SenasRepository {
       _cache = lista;
       return lista;
     } catch (e) {
-      debugPrint('Fallo al obtener señas desde Supabase: $e. Usando fallback.');
+      debugPrint('Fallo al obtener señas del backend: $e. Usando fallback.');
       return _fallback.obtenerTodas();
     }
   }
@@ -155,5 +144,21 @@ class SupabaseSenasRepository implements SenasRepository {
               sena.estadoAprendizaje is NoIniciada || sena.requierePractica,
         )
         .toList(growable: false);
+  }
+
+  @override
+  Future<void> registrarPractica(
+    String senaId,
+    DateTime hoy, {
+    bool acierto = false,
+    double? precision,
+  }) async {
+    await _api.post('/progreso/$senaId/practica', {
+      'fecha': hoy.toIso8601String().substring(0, 10),
+      'acierto': acierto,
+      'precision': ?precision,
+    });
+    // El estado cambió: la próxima lectura vuelve a pedirlo al backend.
+    _cache = null;
   }
 }

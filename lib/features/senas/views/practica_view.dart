@@ -1,8 +1,10 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 import 'package:miapp/features/senas/providers/practica_provider.dart';
+import 'package:miapp/features/senas/providers/senas_provider.dart';
 import 'package:miapp/features/senas/views/widgets/hand_landmarks_painter.dart';
 
 /// Vista de la pantalla de práctica.
@@ -12,7 +14,15 @@ import 'package:miapp/features/senas/views/widgets/hand_landmarks_painter.dart';
 /// cámara, las suscripciones y la integración de MediaPipe están delegadas a
 /// [PracticaProvider] y [CameraDetectionService].
 class PracticaView extends ConsumerStatefulWidget {
-  const PracticaView({super.key, this.objetivo, this.imagenReferencia});
+  const PracticaView({
+    super.key,
+    this.senaId,
+    this.objetivo,
+    this.imagenReferencia,
+  });
+
+  /// Seña cuyo progreso se registra al reconocerla correctamente.
+  final String? senaId;
 
   /// Si se indica, la vista practica solo esta seña (`int` número, `String`
   /// letra) y arranca reconociendo.
@@ -27,6 +37,8 @@ class PracticaView extends ConsumerStatefulWidget {
 
 class _PracticaViewState extends ConsumerState<PracticaView>
     with WidgetsBindingObserver {
+  // Un día con acierto cuenta una vez: basta registrarlo una vez por pantalla.
+  bool _aciertoRegistrado = false;
   @override
   void initState() {
     super.initState();
@@ -38,6 +50,22 @@ class _PracticaViewState extends ConsumerState<PracticaView>
         notifier.toggleReconocimiento(objetivo: widget.objetivo);
       }
     });
+  }
+
+  Future<void> _registrarAcierto(String senaId, double confianza) async {
+    try {
+      await ref
+          .read(senasRepositoryProvider)
+          .registrarPractica(
+            senaId,
+            DateTime.now(),
+            acierto: true,
+            precision: confianza,
+          );
+      ref.invalidate(senasFutureProvider);
+    } catch (e) {
+      debugPrint('No se pudo registrar el acierto de $senaId: $e');
+    }
   }
 
   @override
@@ -54,6 +82,13 @@ class _PracticaViewState extends ConsumerState<PracticaView>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(practicaProvider);
+    ref.listen(practicaProvider.select((s) => s.resultado), (_, resultado) {
+      final senaId = widget.senaId;
+      if (resultado.confirmada && senaId != null && !_aciertoRegistrado) {
+        _aciertoRegistrado = true;
+        _registrarAcierto(senaId, resultado.confianza);
+      }
+    });
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -77,6 +112,7 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                           painter: HandLandmarksPainter(
                             hands: state.detectedHands,
                             isFrontCamera: state.isFrontCamera,
+                            color: _colorEsqueleto(state.resultado.estado),
                           ),
                         ),
                       ),
@@ -298,7 +334,8 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                                 state.hasHandsDetected,
                                 widget.objetivo,
                               ),
-                              if (state.reconociendo &&
+                              if (kDebugMode &&
+                                  state.reconociendo &&
                                   state.extensiones.length == 9)
                                 _puntajes(state.extensiones),
                             ].join('\n'),
@@ -321,6 +358,17 @@ class _PracticaViewState extends ConsumerState<PracticaView>
   }
 }
 
+// Verde si la seña es correcta, naranja si está cerca y rojo si no se
+// reconoce; con el reconocimiento detenido conserva el color por defecto.
+Color _colorEsqueleto(EstadoReconocimiento estado) => switch (estado) {
+  EstadoReconocimiento.detenido => const Color(0xFF71F0C2),
+  EstadoReconocimiento.confirmada => const Color(0xFF2ECC71),
+  EstadoReconocimiento.analizando => const Color(0xFFFF9F1C),
+  EstadoReconocimiento.sinMano ||
+  EstadoReconocimiento.manoParcial ||
+  EstadoReconocimiento.noReconocida => const Color(0xFFE53935),
+};
+
 // "el 3" o "la A".
 String _nombre(Object sena) =>
     sena is String ? 'la ${sena.toUpperCase()}' : 'el $sena';
@@ -334,15 +382,15 @@ String _mensaje(ResultadoReconocimiento r, bool hayMano, Object? objetivo) {
     EstadoReconocimiento.manoParcial =>
       'Mano cortada: aléjala y céntrala en la cámara',
     EstadoReconocimiento.analizando =>
-      'Analizando… (¿${r.numero.toString().toUpperCase()}?)',
+      'Analizando… (¿${r.sena.toString().toUpperCase()}?)',
     EstadoReconocimiento.noReconocida =>
       objetivo == null
           ? 'Seña no reconocida'
           : 'Aún no es ${_nombre(objetivo)}',
     EstadoReconocimiento.confirmada =>
       objetivo == null
-          ? 'Número ${r.numero} · confianza $conf'
-          : '¡Correcto! Es ${_nombre(r.numero!)} · confianza $conf',
+          ? 'Número ${r.sena} · confianza $conf'
+          : '¡Correcto! Es ${_nombre(r.sena!)} · confianza $conf',
   };
 }
 

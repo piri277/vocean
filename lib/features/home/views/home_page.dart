@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:miapp/features/home/providers/home_navigation_provider.dart';
-import 'package:miapp/features/senas/views/lista_senas_view.dart';
+import 'package:miapp/features/senas/views/diccionario_view.dart';
 import 'package:miapp/features/senas/views/practica_view.dart';
 import 'package:miapp/features/juego/views/juego_view.dart';
 import 'package:miapp/features/perfil/views/perfil_view.dart';
@@ -11,8 +11,8 @@ import 'package:miapp/features/perfil/views/perfil_view.dart';
 /// Cascarón (shell) principal de la aplicación.
 ///
 /// Orquesta la navegación entre los cuatro features principales
-/// mediante una barra de navegación personalizada y un [IndexedStack]
-/// que mantiene el estado de cada pestaña.
+/// mediante una barra de navegación personalizada. Solo la pestaña activa
+/// está montada, así la cámara de Práctica se libera al salir.
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -34,7 +34,7 @@ class HomePage extends ConsumerWidget {
     final currentIndex = ref.watch(homeNavigationProvider);
 
     final body = switch (currentIndex) {
-      0 => const ListaSenasView(),
+      0 => const DiccionarioView(),
       1 => const PracticaView(),
       2 => const JuegoView(),
       _ => const PerfilView(),

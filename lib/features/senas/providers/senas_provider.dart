@@ -1,16 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:miapp/features/auth/providers/auth_providers.dart';
+import 'package:miapp/core/network/api_provider.dart';
 import 'package:miapp/features/senas/models/sena_model.dart';
 import 'package:miapp/features/senas/services/senas_repository.dart';
-import 'package:miapp/features/senas/services/supabase_senas_repository.dart';
+import 'package:miapp/features/senas/services/api_senas_repository.dart';
 
 /// Provider que expone la implementación de [SenasRepository].
 final senasRepositoryProvider = Provider<SenasRepository>((ref) {
-  final client = ref.watch(supabaseClientProvider);
-  return SupabaseSenasRepository(client);
+  return ApiSenasRepository(ref.watch(apiClientProvider));
 });
 
-/// FutureProvider asíncrono que consulta el catálogo y progreso desde Supabase.
+/// FutureProvider asíncrono que consulta el catálogo y progreso desde el backend.
 final senasFutureProvider = FutureProvider<List<Sena>>((ref) async {
   final repository = ref.watch(senasRepositoryProvider);
   return repository.obtenerTodas();

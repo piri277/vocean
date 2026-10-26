@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 
-/// Suaviza las clasificaciones por fotograma y solo confirma un número tras
+/// Suaviza las clasificaciones por fotograma y solo confirma una seña tras
 /// observar suficientes fotogramas consistentes en una ventana deslizante.
 class EstabilizadorReconocimiento {
   EstabilizadorReconocimiento({
@@ -18,7 +18,7 @@ class EstabilizadorReconocimiento {
   final int framesConfirmacion;
 
   // null = fotograma sin evidencia (sin mano, parcial o bajo el umbral).
-  final Queue<ClasificacionNumero?> _frames = Queue();
+  final Queue<ClasificacionSena?> _frames = Queue();
   bool _hayMano = false;
   bool _parcial = false;
 
@@ -31,7 +31,7 @@ class EstabilizadorReconocimiento {
   ResultadoReconocimiento actualizar({
     required bool hayMano,
     bool parcial = false,
-    ClasificacionNumero? clasificacion,
+    ClasificacionSena? clasificacion,
   }) {
     _hayMano = hayMano;
     _parcial = parcial;
@@ -44,8 +44,8 @@ class EstabilizadorReconocimiento {
     if (_frames.length > ventana) _frames.removeFirst();
 
     final conteo = <Object, List<double>>{};
-    for (final f in _frames.whereType<ClasificacionNumero>()) {
-      (conteo[f.numero] ??= []).add(f.confianza);
+    for (final f in _frames.whereType<ClasificacionSena>()) {
+      (conteo[f.sena] ??= []).add(f.confianza);
     }
     final mejor = conteo.entries.isEmpty
         ? null
@@ -59,14 +59,14 @@ class EstabilizadorReconocimiento {
       if (mejor.value.length >= framesConfirmacion) {
         return ResultadoReconocimiento(
           EstadoReconocimiento.confirmada,
-          numero: mejor.key,
+          sena: mejor.key,
           confianza: confianza,
         );
       }
       if (hayMano && mejor.value.length * 2 >= framesConfirmacion) {
         return ResultadoReconocimiento(
           EstadoReconocimiento.analizando,
-          numero: mejor.key,
+          sena: mejor.key,
           confianza: confianza,
         );
       }

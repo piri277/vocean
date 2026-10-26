@@ -6,6 +6,7 @@ class HandLandmarksPainter extends CustomPainter {
   const HandLandmarksPainter({
     required this.hands,
     required this.isFrontCamera,
+    this.color = const Color(0xFF71F0C2),
   });
 
   /// Lista de manos detectadas, donde cada mano contiene los puntos normalizados (0.0 a 1.0).
@@ -13,6 +14,9 @@ class HandLandmarksPainter extends CustomPainter {
 
   /// Indica si la cámara activa es la frontal (para invertir el eje correspondiente).
   final bool isFrontCamera;
+
+  /// Color de líneas y puntos.
+  final Color color;
 
   /// Conexiones anatómicas entre los 21 puntos clave de la mano según MediaPipe.
   static const List<List<int>> _connections = [
@@ -44,12 +48,12 @@ class HandLandmarksPainter extends CustomPainter {
     if (hands.isEmpty) return;
 
     final linePaint = Paint()
-      ..color = const Color(0xFF71F0C2)
+      ..color = color
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
     final pointPaint = Paint()
-      ..color = const Color(0xFF71F0C2)
+      ..color = color
       ..style = PaintingStyle.fill;
 
     // Helper para transformar las coordenadas del sensor de MediaPipe a la pantalla.

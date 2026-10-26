@@ -65,4 +65,13 @@ class SenasLocales implements SenasRepository {
         )
         .toList(growable: false);
   }
+
+  /// Los assets son de solo lectura: el progreso solo se guarda en el backend.
+  @override
+  Future<void> registrarPractica(
+    String senaId,
+    DateTime hoy, {
+    bool acierto = false,
+    double? precision,
+  }) async {}
 }

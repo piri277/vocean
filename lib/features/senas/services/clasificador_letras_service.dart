@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:miapp/features/senas/models/landmark_model.dart';
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 
 typedef _Rasgos = ({
@@ -18,10 +18,12 @@ typedef _Rasgos = ({
 /// Puntúa una letra estática de LSC concreta a partir de los 21 landmarks.
 ///
 /// Solo se usa al practicar una seña: varias letras comparten forma con
-/// números u otras letras (V y 2, F y 9, W y 6), así que no se elige la mejor
+/// números (V y 2, W y 6), así que no se elige la mejor
 /// entre todas. Las definiciones salen de assets/data/senas.json y los rangos
 /// son valores iniciales: deben calibrarse con muestras reales.
-// shortcut: g, h, j, s, z y ñ pendientes; j y z llevan movimiento.
+// shortcut: d, e, f, k, m, n, q, t, u y x no se reconocían con manos reales y
+// quedan como próximamente; g, h, j, s, z y ñ sin implementar (j y z llevan
+// movimiento). Reintentar tras calibrar con muestras reales.
 class ClasificadorLetras {
   const ClasificadorLetras();
 
@@ -40,12 +42,6 @@ class ClasificadorLetras {
       for (var i = 1; i <= 4; i++) _entre(r.ext[i], 0.2, 0.8),
       1 - r.cont[0],
     ],
-    // Índice arriba; el medio toca la punta del pulgar.
-    'd': (r) => [r.ext[1], r.cont[1], 1 - r.ext[3], 1 - r.ext[4]],
-    // Dedos doblados con las puntas sobre el pulgar.
-    'e': (r) => [..._doblados(r), math.max(r.cont[0], r.cont[1])],
-    // Pulgar e índice en círculo, los otros tres arriba.
-    'f': (r) => [r.cont[0], r.ext[2], r.ext[3], r.ext[4]],
     'i': (r) => [
       1 - r.ext[0],
       1 - r.ext[1],
@@ -53,38 +49,13 @@ class ClasificadorLetras {
       1 - r.ext[3],
       r.ext[4],
     ],
-    // V hacia arriba con el pulgar en la base del medio.
-    'k': (r) => [..._ve(r), r.pulgarEnMedio, 1 - r.abajo],
     'l': (r) => [r.ext[0], r.ext[1], 1 - r.ext[2], 1 - r.ext[3], 1 - r.ext[4]],
-    // Puño con el pulgar asomando entre anular y meñique.
-    'm': (r) => [..._doblados(r), _cerca(r.lateral, 0.83)],
-    // Puño con el pulgar asomando entre medio y anular.
-    'n': (r) => [..._doblados(r), _cerca(r.lateral, 0.5)],
     'o': (r) => [r.cont[0], r.cont[1], r.cont[2]],
-    // K apuntando hacia abajo.
+    // Índice y medio en V hacia abajo, con el pulgar en la base del medio.
     'p': (r) => [..._ve(r), r.pulgarEnMedio, r.abajo],
-    // G apuntando hacia abajo: índice y pulgar extendidos.
-    'q': (r) => [
-      r.ext[0],
-      r.ext[1],
-      1 - r.ext[2],
-      1 - r.ext[3],
-      1 - r.ext[4],
-      r.abajo,
-    ],
     'r': (r) => [..._ve(r), r.cruce],
-    // Puño con el pulgar asomando entre índice y medio.
-    't': (r) => [..._doblados(r), _cerca(r.lateral, 0.17)],
-    'u': (r) => [1 - r.ext[0], ..._ve(r), 1 - r.separacion, 1 - r.cruce],
     'v': (r) => [1 - r.ext[0], ..._ve(r), r.separacion, 1 - r.cruce],
     'w': (r) => [1 - r.ext[0], r.ext[1], r.ext[2], r.ext[3], 1 - r.ext[4]],
-    // Puño con el índice en gancho.
-    'x': (r) => [
-      _entre(r.ext[1], 0.1, 0.55),
-      1 - r.ext[2],
-      1 - r.ext[3],
-      1 - r.ext[4],
-    ],
     'y': (r) => [r.ext[0], 1 - r.ext[1], 1 - r.ext[2], 1 - r.ext[3], r.ext[4]],
   };
 
@@ -93,7 +64,7 @@ class ClasificadorLetras {
 
   /// Confianza de que la mano forma [letra], o null si no la forma o la mano
   /// está incompleta.
-  ClasificacionNumero? puntuar(
+  ClasificacionSena? puntuar(
     String letra,
     List<Landmark> puntos, {
     double aspecto = 1,
@@ -106,7 +77,7 @@ class ClasificadorLetras {
     }
     final puntajes = condicion(_rasgos(puntos, aspecto));
     if (puntajes.any((c) => c < 0.5)) return null;
-    return ClasificacionNumero(
+    return ClasificacionSena(
       letra,
       puntajes.reduce((a, b) => a + b) / puntajes.length,
     );
@@ -168,7 +139,4 @@ class ClasificadorLetras {
   // 1 dentro de [lo, hi]; vale 0.5 a 0.05 fuera del rango.
   static double _entre(double v, double lo, double hi) =>
       1 - _r(math.max(lo - v, v - hi), 0, 0.1);
-
-  // 1 cerca de [c]; vale 0.5 a 0.14 de distancia.
-  static double _cerca(double v, double c) => 1 - _r((v - c).abs(), 0.08, 0.2);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/features/perfil/providers/perfil_provider.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/providers/senas_provider.dart';
 import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
@@ -133,15 +134,19 @@ class SenaDetalleView extends ConsumerWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: practicable
-                      ? () => Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => PracticaView(
-                              objetivo: objetivo,
-                              imagenReferencia: imagen,
+                      ? () {
+                          _registrarPractica(ref);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => PracticaView(
+                                senaId: senaId,
+                                objetivo: objetivo,
+                                imagenReferencia: imagen,
+                              ),
                             ),
-                          ),
-                        )
+                          );
+                        }
                       : null,
                   child: Text(
                     practicable
@@ -155,6 +160,24 @@ class SenaDetalleView extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Suma el día a la racha si es nuevo y pasa la seña a «en práctica».
+  /// Si el backend falla, la práctica sigue igual.
+  Future<void> _registrarPractica(WidgetRef ref) async {
+    final hoy = DateTime.now();
+    try {
+      await ref.read(usuarioRepositoryProvider).registrarPractica(hoy);
+      ref.invalidate(usuarioFutureProvider);
+    } catch (e) {
+      debugPrint('No se pudo registrar la racha: $e');
+    }
+    try {
+      await ref.read(senasRepositoryProvider).registrarPractica(senaId, hoy);
+      ref.invalidate(senasFutureProvider);
+    } catch (e) {
+      debugPrint('No se pudo iniciar la práctica de $senaId: $e');
+    }
   }
 
   Color _colorForCategoria(String categoria) {

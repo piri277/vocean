@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:miapp/features/senas/models/reconocimiento_numero_model.dart';
+import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 
 /// Estados posibles de la pantalla de práctica.
 enum PracticaStatus { initial, loading, ready, switchingCamera, error }
