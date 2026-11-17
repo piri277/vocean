@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
-import 'package:miapp/features/perfil/providers/perfil_provider.dart';
+import 'package:miapp/features/perfil/views/racha_celebracion.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/providers/senas_provider.dart';
 import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
@@ -109,6 +109,10 @@ class SenaDetalleView extends ConsumerWidget {
                   height: 1.6,
                 ),
               ),
+              if (practicable) ...[
+                const SizedBox(height: 20),
+                _ProgresoDominio(estado: estado),
+              ],
               const SizedBox(height: 20),
               Container(
                 height: 340,
@@ -134,11 +138,12 @@ class SenaDetalleView extends ConsumerWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: practicable
-                      ? () {
-                          _registrarPractica(ref);
-                          Navigator.push(
+                      ? () async {
+                          _iniciarPractica(ref);
+                          // La cámara devuelve la subida de racha si hubo acierto.
+                          final racha = await Navigator.push(
                             context,
-                            MaterialPageRoute<void>(
+                            MaterialPageRoute<SubidaRacha?>(
                               builder: (_) => PracticaView(
                                 senaId: senaId,
                                 objetivo: objetivo,
@@ -146,6 +151,13 @@ class SenaDetalleView extends ConsumerWidget {
                               ),
                             ),
                           );
+                          if (racha != null && context.mounted) {
+                            mostrarCelebracionRacha(
+                              context,
+                              anterior: racha.anterior,
+                              nueva: racha.nueva,
+                            );
+                          }
                         }
                       : null,
                   child: Text(
@@ -162,16 +174,9 @@ class SenaDetalleView extends ConsumerWidget {
     );
   }
 
-  /// Suma el día a la racha si es nuevo y pasa la seña a «en práctica».
-  /// Si el backend falla, la práctica sigue igual.
-  Future<void> _registrarPractica(WidgetRef ref) async {
+  /// Pasa la seña a «en práctica». Si el backend falla, la práctica sigue igual.
+  Future<void> _iniciarPractica(WidgetRef ref) async {
     final hoy = DateTime.now();
-    try {
-      await ref.read(usuarioRepositoryProvider).registrarPractica(hoy);
-      ref.invalidate(usuarioFutureProvider);
-    } catch (e) {
-      debugPrint('No se pudo registrar la racha: $e');
-    }
     try {
       await ref.read(senasRepositoryProvider).registrarPractica(senaId, hoy);
       ref.invalidate(senasFutureProvider);
@@ -226,5 +231,108 @@ class SenaDetalleView extends ConsumerWidget {
       NecesitaRepaso() => const Color(0xFFB71C1C),
       NoIniciada() => AppTheme.grey,
     };
+  }
+}
+
+/// Cuántos días lleva practicando la seña y cuántos le faltan para dominarla.
+class _ProgresoDominio extends StatelessWidget {
+  const _ProgresoDominio({required this.estado});
+
+  final EstadoAprendizaje estado;
+
+  @override
+  Widget build(BuildContext context) {
+    final hoy = DateTime.now();
+    final (int dias, String titulo, String detalle) = switch (estado) {
+      NoIniciada() => (
+        0,
+        'Empieza a practicar',
+        'Reconócela bien en $diasParaDominar días distintos para dominarla.',
+      ),
+      final EnPractica e => (
+        e.intentos,
+        'Sigue practicando ${e.diasRestantes} '
+            '${e.diasRestantes == 1 ? 'día' : 'días'} más para dominarla',
+        e.contoHoy(hoy)
+            ? '¡Hoy ya cuenta! Vuelve mañana para sumar otro día.'
+            : 'Haz la seña correctamente hoy para sumar un día.',
+      ),
+      NecesitaRepaso(:final motivo) => (
+        0,
+        'Necesita repaso',
+        '$motivo. Practícala de nuevo para recuperarla.',
+      ),
+      Dominada() => (
+        diasParaDominar,
+        '¡Seña dominada! 🎉',
+        'La practicaste $diasParaDominar días. Repásala de vez en cuando.',
+      ),
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: AppTheme.darkTeal,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Text(
+                '$dias/$diasParaDominar días',
+                style: const TextStyle(
+                  color: AppTheme.buttonTeal,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              for (var i = 0; i < diasParaDominar; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: i < dias
+                          ? AppTheme.buttonTeal
+                          : AppTheme.ringBackground,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            detalle,
+            style: const TextStyle(color: Color(0xFF666666), fontSize: 13),
+          ),
+        ],
+      ),
+    );
   }
 }

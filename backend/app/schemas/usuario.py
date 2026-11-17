@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UsuarioBase(BaseModel):
@@ -8,7 +8,9 @@ class UsuarioBase(BaseModel):
 
 
 class UsuarioUpdate(BaseModel):
-    nombre: Optional[str] = None
+    model_config = ConfigDict(str_strip_whitespace=True)
+    # Sin espacios a los lados para que "   " no pase como nombre válido.
+    nombre: Optional[str] = Field(default=None, min_length=2, max_length=40)
     xp_incremento: Optional[int] = Field(default=None, ge=0)
     incrementar_partida: Optional[bool] = False
     nueva_racha: Optional[int] = Field(default=None, ge=0)

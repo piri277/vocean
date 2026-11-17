@@ -8,7 +8,10 @@ from app.schemas.partida import (
     PartidaCreate,
     PartidaResponse,
     PreguntaResponse,
+    VictoriaJuego,
 )
+from app.core.progreso import xp_juego
+from app.schemas.usuario import UsuarioResponse
 
 router = APIRouter(prefix="/partidas", tags=["Partidas y Juego"])
 
@@ -149,3 +152,45 @@ async def listar_partidas_usuario(
 
     return partidas
 
+
+
+@router.post("/resultado", response_model=UsuarioResponse)
+async def registrar_resultado_juego(
+    datos: VictoriaJuego,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Client = Depends(get_db),
+):
+    """
+    Da XP por ganar una partida, solo la primera vez en cada modo y dificultad.
+    Devuelve el perfil; si no hubo XP queda igual.
+    """
+    if datos.aciertos > datos.total:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Los aciertos no pueden superar el total de preguntas.",
+        )
+    user_id = current_user["id"]
+    usuario_res = db.table("usuario").select("*").eq("id", user_id).execute()
+    if not usuario_res.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Perfil de usuario no encontrado.",
+        )
+    usr = usuario_res.data[0]
+    ganados = usr.get("juegos_ganados") or []
+    clave = f"{datos.modo}:{datos.dificultad.value}"
+    xp = xp_juego(datos.dificultad.value, datos.aciertos, datos.total, clave in ganados)
+    if not xp:
+        return usr
+
+    res = db.table("usuario").update({
+        "xp_total": (usr.get("xp_total") or 0) + xp,
+        "juegos_ganados": [*ganados, clave],
+        "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
+    }).eq("id", user_id).execute()
+    if not res.data:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo registrar la XP del juego.",
+        )
+    return res.data[0]

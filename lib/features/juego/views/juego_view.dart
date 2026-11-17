@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
 import 'package:miapp/features/juego/models/dificultad_model.dart';
+import 'package:miapp/features/perfil/providers/perfil_provider.dart';
 
 const _rondas = 8;
 
@@ -26,14 +28,14 @@ const _etiquetaDificultad = {
 bool _esNumero(String s) => RegExp(r'\d').hasMatch(s);
 
 /// Juego: adivinar la palabra o número formado por señas estáticas.
-class JuegoView extends StatefulWidget {
+class JuegoView extends ConsumerStatefulWidget {
   const JuegoView({super.key});
 
   @override
-  State<JuegoView> createState() => _JuegoViewState();
+  ConsumerState<JuegoView> createState() => _JuegoViewState();
 }
 
-class _JuegoViewState extends State<JuegoView> {
+class _JuegoViewState extends ConsumerState<JuegoView> {
   final _rnd = Random();
   // categoria -> dificultad -> textos; viene de assets/juego/palabras.json.
   Map<String, Map<String, List<String>>>? _datos;
@@ -45,6 +47,8 @@ class _JuegoViewState extends State<JuegoView> {
   int _aciertos = 0;
   List<String> _opciones = [];
   String? _elegida;
+  // Mensaje de XP de la partida terminada; null mientras se envía.
+  String? _mensajeXp;
 
   @override
   void initState() {
@@ -75,6 +79,7 @@ class _JuegoViewState extends State<JuegoView> {
     _preguntas = pool.take(_rondas).toList();
     _ronda = 0;
     _aciertos = 0;
+    _mensajeXp = null;
     _jugando = true;
     _prepararRonda();
   }
@@ -109,6 +114,35 @@ class _JuegoViewState extends State<JuegoView> {
       _ronda++;
       if (_ronda < _preguntas.length) _prepararRonda();
     });
+    if (_ronda >= _preguntas.length) _registrarResultado();
+  }
+
+  /// Envía el resultado; el backend da XP solo la 1.ª victoria por modo y dificultad.
+  Future<void> _registrarResultado() async {
+    final antes = ref.read(usuarioFutureProvider).valueOrNull?.xpTotal;
+    String mensaje;
+    try {
+      final usuario = await ref
+          .read(usuarioRepositoryProvider)
+          .registrarResultadoJuego(
+            modo: _categoria.name,
+            dificultad: _dificultad.name,
+            aciertos: _aciertos,
+            total: _preguntas.length,
+          );
+      ref.invalidate(usuarioFutureProvider);
+      final ganada = antes == null ? 0 : usuario.xpTotal - antes;
+      final gano = _aciertos >= (_preguntas.length * 0.75).ceil();
+      mensaje = ganada > 0
+          ? '+$ganada XP'
+          : gano
+          ? 'Ya ganaste la XP de este modo y dificultad'
+          : 'Acierta ${(_preguntas.length * 0.75).ceil()} para ganar XP';
+    } catch (e) {
+      debugPrint('No se pudo registrar el resultado del juego: $e');
+      mensaje = 'No se pudo guardar la XP';
+    }
+    if (mounted) setState(() => _mensajeXp = mensaje);
   }
 
   String _asset(String c) => RegExp(r'\d').hasMatch(c)
@@ -229,6 +263,17 @@ class _JuegoViewState extends State<JuegoView> {
               ),
             ),
             const Text('Aciertos', style: TextStyle(color: AppTheme.grey)),
+            const SizedBox(height: 12),
+            Text(
+              _mensajeXp ?? 'Guardando…',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: _mensajeXp?.startsWith('+') ?? false
+                    ? const Color(0xFFFF9600)
+                    : AppTheme.grey,
+              ),
+            ),
             const SizedBox(height: 24),
             _BotonPrincipal(
               texto: 'Jugar de nuevo',

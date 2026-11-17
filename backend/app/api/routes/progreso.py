@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 
 from app.api.dependencies import get_current_user, get_db, validar_fecha_local
-from app.core.progreso import siguiente_progreso
+from app.core.progreso import siguiente_progreso, xp_practica
 from app.schemas.estado_aprendizaje import (
     EstadoAprendizajeResponse,
     EstadoAprendizajeUpdate,
@@ -143,10 +143,11 @@ async def registrar_practica_sena(
     actual = actual_res.data[0] if actual_res.data else {}
     ultimo = actual.get("ultimo_intento")
     tipo_previo = actual.get("tipo", EstadoTipo.no_iniciada.value)
+    dias_previos = actual.get("intentos") or 0
 
     tipo, dias, ultimo_dia = siguiente_progreso(
         tipo_previo,
-        actual.get("intentos") or 0,
+        dias_previos,
         datetime.fromisoformat(ultimo).date() if ultimo else None,
         datos.fecha,
         datos.acierto,
@@ -173,4 +174,12 @@ async def registrar_practica_sena(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="No se pudo registrar la práctica de la seña.",
         )
+
+    xp = xp_practica(dias_previos, dias, recien_dominada)
+    if xp:
+        usuario_res = db.table("usuario").select("xp_total").eq("id", user_id).execute()
+        if usuario_res.data:
+            db.table("usuario").update({
+                "xp_total": (usuario_res.data[0].get("xp_total") or 0) + xp,
+            }).eq("id", user_id).execute()
     return response.data[0]

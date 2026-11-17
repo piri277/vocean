@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
@@ -46,3 +46,11 @@ class PartidaResponse(BaseModel):
     fecha: datetime
     preguntas: Optional[List[PreguntaResponse]] = None
 
+
+
+class VictoriaJuego(BaseModel):
+    """Resultado de una partida del juego, para dar XP si se ganó."""
+    modo: Literal["palabras", "numeros", "mezcla"]
+    dificultad: DificultadNivel
+    aciertos: int = Field(ge=0)
+    total: int = Field(ge=1, le=50)

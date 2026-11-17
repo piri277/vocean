@@ -23,9 +23,9 @@ class ApiClient {
     : _http = cliente ?? http.Client(),
       _baseUrl = baseUrl ?? defaultBaseUrl;
 
-  /// Se configura al compilar: `--dart-define=API_URL=http://<ip>:8000/api`.
+  /// Se configura al compilar: `--dart-define=API_URL=http://localhost:8001/api`.
   /// Por defecto usa localhost, que llega al backend del PC tras
-  /// `adb reverse tcp:8000 tcp:8000` (teléfono por USB o emulador).
+  /// `adb reverse tcp:8001 tcp:8000` (teléfono por USB o emulador).
   static const defaultBaseUrl = String.fromEnvironment(
     'API_URL',
     defaultValue: 'http://localhost:8000/api',
@@ -45,6 +45,13 @@ class ApiClient {
   Future<dynamic> post(String ruta, Object cuerpo) => _enviar(
     (uri, headers) =>
         _http.post(uri, headers: headers, body: jsonEncode(cuerpo)),
+    ruta,
+    null,
+  );
+
+  Future<dynamic> patch(String ruta, Object cuerpo) => _enviar(
+    (uri, headers) =>
+        _http.patch(uri, headers: headers, body: jsonEncode(cuerpo)),
     ruta,
     null,
   );

@@ -29,6 +29,10 @@ class AuthService {
     return _client.auth.signInWithPassword(email: correo, password: contrasena);
   }
 
+  /// Cambia la contraseña del usuario con sesión activa.
+  Future<void> cambiarContrasena(String nueva) =>
+      _client.auth.updateUser(UserAttributes(password: nueva));
+
   Future<void> cerrarSesion() => _client.auth.signOut();
 
   /// null si no hay sesión activa.

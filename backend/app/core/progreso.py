@@ -27,3 +27,27 @@ def siguiente_progreso(
     if ultimo_dia is None or hoy > ultimo_dia:
         dias, ultimo_dia = dias + 1, hoy
     return ("dominada" if dias >= DIAS_PARA_DOMINAR else "en_practica"), dias, ultimo_dia
+
+
+# Experiencia (XP) que da el aprendizaje.
+XP_PRACTICA = 10  # primer acierto del día en una seña
+XP_DOMINAR = 30  # extra al dominarla
+
+# Juego: XP por ganar cada dificultad, una sola vez por modo y dificultad.
+XP_JUEGO = {"facil": 20, "medio": 30, "dificil": 40, "extremo": 50}
+# Se gana con al menos el 75 % de aciertos.
+ACIERTOS_PARA_GANAR = 0.75
+
+
+def xp_practica(dias_previos: int, dias: int, recien_dominada: bool) -> int:
+    """XP de una práctica: solo si sumó un día nuevo a la seña."""
+    if dias <= dias_previos:
+        return 0
+    return XP_PRACTICA + (XP_DOMINAR if recien_dominada else 0)
+
+
+def xp_juego(dificultad: str, aciertos: int, total: int, ya_ganado: bool) -> int:
+    """XP de una partida: la primera victoria de ese modo y dificultad."""
+    if ya_ganado or total <= 0 or aciertos / total < ACIERTOS_PARA_GANAR:
+        return 0
+    return XP_JUEGO[dificultad]

@@ -29,6 +29,28 @@ class ApiUsuarioRepository implements UsuarioRepository {
     return _desdeJson(json as Map<String, dynamic>);
   }
 
+  @override
+  Future<Usuario> registrarResultadoJuego({
+    required String modo,
+    required String dificultad,
+    required int aciertos,
+    required int total,
+  }) async {
+    final json = await _api.post('/partidas/resultado', {
+      'modo': modo,
+      'dificultad': dificultad,
+      'aciertos': aciertos,
+      'total': total,
+    });
+    return _desdeJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Usuario> actualizarNombre(String nombre) async {
+    final json = await _api.patch('/usuarios/me', {'nombre': nombre.trim()});
+    return _desdeJson(json as Map<String, dynamic>);
+  }
+
   static Usuario _vacio() => Usuario(
     xpTotal: 0,
     partidasJugadas: 0,

@@ -1,5 +1,9 @@
 import 'package:miapp/core/utils/json_utils.dart';
 
+/// Días distintos con al menos un acierto para dominar una seña.
+/// Debe coincidir con DIAS_PARA_DOMINAR en backend/app/core/progreso.py.
+const diasParaDominar = 3;
+
 /// En qué punto del aprendizaje está una seña para el usuario.
 ///
 /// `sealed` significa dos cosas: nadie fuera de este archivo puede añadir un
@@ -64,7 +68,8 @@ sealed class EstadoAprendizaje {
   /// Texto para la pantalla.
   String get etiqueta => switch (this) {
     NoIniciada() => 'Sin iniciar',
-    EnPractica(:final intentos) => 'En práctica · $intentos intentos',
+    EnPractica(:final intentos) =>
+      'En práctica · $intentos/$diasParaDominar días',
     Dominada(:final precision) =>
       'Dominada · ${(precision * 100).round()}% de precisión',
     NecesitaRepaso(:final motivo) => 'Necesita repaso: $motivo',
@@ -87,8 +92,21 @@ final class NoIniciada extends EstadoAprendizaje {
 final class EnPractica extends EstadoAprendizaje {
   const EnPractica(this.intentos, this.ultimoIntento);
 
+  /// Días distintos con acierto (el backend guarda eso en `intentos`).
   final int intentos;
+
+  /// Último día con acierto.
   final DateTime ultimoIntento;
+
+  int get diasRestantes =>
+      (diasParaDominar - intentos).clamp(0, diasParaDominar);
+
+  /// Si hoy ya sumó un día: más aciertos hoy no cuentan.
+  bool contoHoy(DateTime hoy) =>
+      intentos > 0 &&
+      ultimoIntento.year == hoy.year &&
+      ultimoIntento.month == hoy.month &&
+      ultimoIntento.day == hoy.day;
 
   @override
   bool operator ==(Object other) =>

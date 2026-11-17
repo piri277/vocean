@@ -4,15 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:miapp/features/home/providers/home_navigation_provider.dart';
 import 'package:miapp/features/senas/views/diccionario_view.dart';
-import 'package:miapp/features/senas/views/practica_view.dart';
 import 'package:miapp/features/juego/views/juego_view.dart';
 import 'package:miapp/features/perfil/views/perfil_view.dart';
 
 /// Cascarón (shell) principal de la aplicación.
 ///
-/// Orquesta la navegación entre los cuatro features principales
+/// Orquesta la navegación entre los tres features principales
 /// mediante una barra de navegación personalizada. Solo la pestaña activa
-/// está montada, así la cámara de Práctica se libera al salir.
+/// está montada. La práctica se abre desde el detalle de cada seña.
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -24,7 +23,6 @@ class HomePage extends ConsumerWidget {
   /// Datos de cada tab: icono y label.
   static const _tabs = <_NavTab>[
     _NavTab(icon: Icons.menu_book_rounded, label: 'Diccionario'),
-    _NavTab(icon: Icons.live_tv_rounded, label: 'Práctica'),
     _NavTab(icon: Icons.videogame_asset_rounded, label: 'Juego'),
     _NavTab(icon: Icons.person_outline_rounded, label: 'Perfil'),
   ];
@@ -35,8 +33,7 @@ class HomePage extends ConsumerWidget {
 
     final body = switch (currentIndex) {
       0 => const DiccionarioView(),
-      1 => const PracticaView(),
-      2 => const JuegoView(),
+      1 => const JuegoView(),
       _ => const PerfilView(),
     };
 
