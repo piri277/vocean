@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:miapp/core/config/supabase_config.dart';
 import 'package:miapp/core/router/app_router.dart';
+import 'package:miapp/core/storage/sesion_segura.dart';
 import 'package:miapp/core/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -14,6 +15,9 @@ Future<void> main() async {
     await Supabase.initialize(
       url: SupabaseConfig.url,
       anonKey: SupabaseConfig.anonKey,
+      authOptions: FlutterAuthClientOptions(
+        localStorage: SesionSegura(clave: SupabaseConfig.claveSesion),
+      ),
     );
   } catch (e) {
     debugPrint('Supabase ya inicializado o entorno de prueba: $e');
