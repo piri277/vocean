@@ -1,9 +1,8 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import health, senas, usuarios, progreso, partidas
 from app.core.config import settings
-from app.db.seed import poblar_catalogo
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -38,13 +37,4 @@ async def root():
         "docs": "/docs",
         "health": f"{settings.API_V1_STR}/health",
     }
-
-
-@app.post(f"{settings.API_V1_STR}/admin/seed", tags=["Admin"], status_code=status.HTTP_200_OK)
-async def ejecutar_seed():
-    """
-    Endpoint administrativo para poblar o actualizar el catálogo de señas inicial en Supabase.
-    """
-    resultado = poblar_catalogo()
-    return resultado
 

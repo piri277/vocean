@@ -174,6 +174,8 @@ def poblar_catalogo() -> Dict[str, Any]:
     return {"status": "ok", "total_procesadas": insertadas}
 
 
+# El catálogo se carga solo desde aquí (python -m app.db.seed): no hay endpoint HTTP
+# porque usa la Secret Key y cualquiera en la red podría dispararlo.
 if __name__ == "__main__":
     resultado = poblar_catalogo()
     print(f"Catálogo poblado con éxito: {resultado}")
