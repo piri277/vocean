@@ -1,0 +1,25 @@
+=================================== FAILURES ===================================
+E       AssertionError: '/api/admin/seed' unexpectedly found in ['/openapi.json', '/docs', '/docs/oauth2-redirect', '/redoc', '', '', '', '', '', '/', '/api/admin/seed']
+tests/test_seguridad.py:19: AssertionError
+>       with self.assertRaises(ValidationError):
+E       AssertionError: ValidationError not raised
+tests/test_seguridad.py:28: AssertionError
+>       with self.assertRaises(ValidationError):
+E       AssertionError: ValidationError not raised
+tests/test_seguridad.py:24: AssertionError
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for PartidaCreate
+tests/test_seguridad.py:45: ValidationError
+>       with self.assertRaises(ValidationError):
+E       AssertionError: ValidationError not raised
+tests/test_seguridad.py:37: AssertionError
+___ H08ErrorDeAuthNoFiltraDetalles.test_401_no_incluye_la_excepcion_interna ____
+self = <tests.test_seguridad.H08ErrorDeAuthNoFiltraDetalles testMethod=test_401_no_incluye_la_excepcion_interna>
+E       AssertionError: 'sb_secret' unexpectedly found in 'Error al verificar credenciales: detalle interno sb_secret_xxx'
+tests/test_seguridad.py:61: AssertionError
+FAILED tests/test_seguridad.py::H02SeedSinAutenticacion::test_no_hay_endpoint_publico_de_seed
+FAILED tests/test_seguridad.py::H03PerfilNoAceptaEstadisticas::test_rechaza_racha_enviada_por_el_cliente
+FAILED tests/test_seguridad.py::H03PerfilNoAceptaEstadisticas::test_rechaza_xp_enviada_por_el_cliente
+FAILED tests/test_seguridad.py::H04PartidaNoAceptaXp::test_acepta_partida_valida
+FAILED tests/test_seguridad.py::H04PartidaNoAceptaXp::test_rechaza_xp_enviada_por_el_cliente
+FAILED tests/test_seguridad.py::H08ErrorDeAuthNoFiltraDetalles::test_401_no_incluye_la_excepcion_interna
+6 failed, 2 passed in 0.59s

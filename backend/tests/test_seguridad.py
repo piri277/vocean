@@ -1,4 +1,4 @@
-"""Pruebas de los hallazgos de seguridad H-02, H-03, H-04 y H-08 (ver docs/SEGURIDAD.md)."""
+"""Pruebas de los hallazgos de seguridad H-02, H-03, H-04 y H-08 (evidencia en docs/evidencia/)."""
 import asyncio
 import unittest
 from unittest import mock

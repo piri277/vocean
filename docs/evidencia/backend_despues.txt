@@ -1,0 +1,9 @@
+tests/test_seguridad.py::H02SeedSinAutenticacion::test_no_hay_endpoint_publico_de_seed PASSED [ 12%]
+tests/test_seguridad.py::H03PerfilNoAceptaEstadisticas::test_acepta_cambiar_nombre PASSED [ 25%]
+tests/test_seguridad.py::H03PerfilNoAceptaEstadisticas::test_rechaza_racha_enviada_por_el_cliente PASSED [ 37%]
+tests/test_seguridad.py::H03PerfilNoAceptaEstadisticas::test_rechaza_xp_enviada_por_el_cliente PASSED [ 50%]
+tests/test_seguridad.py::H04PartidaNoAceptaXp::test_acepta_partida_valida PASSED [ 62%]
+tests/test_seguridad.py::H04PartidaNoAceptaXp::test_rechaza_racha_mayor_que_las_preguntas PASSED [ 75%]
+tests/test_seguridad.py::H04PartidaNoAceptaXp::test_rechaza_xp_enviada_por_el_cliente PASSED [ 87%]
+tests/test_seguridad.py::H08ErrorDeAuthNoFiltraDetalles::test_401_no_incluye_la_excepcion_interna PASSED [100%]
+============================== 8 passed in 1.42s ===============================

@@ -1,0 +1,22 @@
+# DESPUÉS: build/app/outputs/flutter-apk/app-release.apk (flutter build apk --release --obfuscate --split-debug-info=build/symbols)
+## H-01: archivos .env dentro del APK (vacío = ninguno)
+(fin)
+## H-06/H-07: atributos de <application> en el manifest compilado
+      A: android:allowBackup(0x01010280)=(type 0x12)0x0
+      A: android:fullBackupContent(0x010104eb)=(type 0x12)0x0
+      A: android:networkSecurityConfig(0x01010527)=@0x7f100002
+      A: android:dataExtractionRules(0x0101063e)=@0x7f100000
+## H-06: network_security_config del release
+## H-08: R8 generó mapping de ofuscación y símbolos Dart separados
+build/app/outputs/mapping/release/mapping.txt
+
+build/symbols:
+app.android-arm64.symbols
+app.android-arm.symbols
+## H-06: network_security_config del release (res/8G.xml)
+E: network-security-config (line=3)
+  E: base-config (line=4)
+    A: cleartextTrafficPermitted=(type 0x12)0x0
+    E: trust-anchors (line=5)
+      E: certificates (line=6)
+        A: src="system" (Raw: "system")

@@ -1,0 +1,7 @@
+# H-01 ANTES: contenido del APK compilado antes de la corrección (build/app/outputs/flutter-apk/app-debug.apk)
+      276  1981-01-01 01:01   assets/flutter_assets/.env
+# Nombres de variables dentro del .env empaquetado (valores ocultos):
+SUPABASE_URL=<oculto>
+SUPABASE_PUBLISHABLE_KEY=<oculto>
+SUPABASE_SECRET_KEY=<oculto>
+SUPABASE_JWKS_URL=<oculto>
