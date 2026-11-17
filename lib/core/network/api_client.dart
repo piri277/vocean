@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,7 +22,16 @@ class ApiException implements Exception {
 class ApiClient {
   ApiClient(this._auth, {http.Client? cliente, String? baseUrl})
     : _http = cliente ?? http.Client(),
-      _baseUrl = baseUrl ?? defaultBaseUrl;
+      _baseUrl = validarBaseUrl(baseUrl ?? defaultBaseUrl);
+
+  /// En release el backend solo se alcanza por HTTPS: el JWT del usuario viaja
+  /// en cada petición y por HTTP se podría leer en la red.
+  static String validarBaseUrl(String url, {bool release = kReleaseMode}) {
+    if (release && Uri.parse(url).scheme != 'https') {
+      throw StateError('API_URL debe usar https en release: $url');
+    }
+    return url;
+  }
 
   /// Se configura al compilar: `--dart-define=API_URL=http://localhost:8001/api`.
   /// Por defecto usa localhost, que llega al backend del PC tras
