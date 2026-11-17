@@ -25,7 +25,8 @@ async def registrar_partida(
     """
     Registra una partida finalizada del juego "¿Qué está diciendo?",
     guarda las preguntas asociadas con su secuencia de señas y actualiza
-    los puntos de experiencia (XP) y racha del usuario de manera transaccional.
+    las partidas jugadas y la racha del usuario. No da XP: esa la calcula
+    /partidas/resultado en el servidor.
     """
     user_id = current_user["id"]
 
@@ -35,7 +36,7 @@ async def registrar_partida(
         "dificultad": datos.dificultad.value,
         "puntuacion": datos.puntuacion,
         "racha_maxima": datos.racha_maxima,
-        "xp_ganado": datos.xp_ganado,
+        "xp_ganado": 0,
     }
 
     partida_res = db.table("partida").insert(partida_payload).execute()
@@ -86,7 +87,6 @@ async def registrar_partida(
     if usuario_res.data:
         usr = usuario_res.data[0]
         db.table("usuario").update({
-            "xp_total": usr.get("xp_total", 0) + datos.xp_ganado,
             "partidas_jugadas": usr.get("partidas_jugadas", 0) + 1,
             "racha_global_maxima": max(usr.get("racha_global_maxima", 0), datos.racha_maxima),
             "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),

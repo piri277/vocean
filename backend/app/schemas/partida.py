@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class DificultadNivel(str, Enum):
@@ -29,11 +29,18 @@ class PreguntaResponse(BaseModel):
 
 
 class PartidaCreate(BaseModel):
+    # Sin xp_ganado: la XP la decide el servidor en /partidas/resultado.
+    model_config = ConfigDict(extra="forbid")
     dificultad: DificultadNivel
     puntuacion: int = Field(ge=0)
     racha_maxima: int = Field(ge=0)
-    xp_ganado: int = Field(ge=0)
-    preguntas: List[PreguntaCreate] = Field(default_factory=list)
+    preguntas: List[PreguntaCreate] = Field(default_factory=list, max_length=50)
+
+    @model_validator(mode="after")
+    def _racha_cabe_en_la_partida(self):
+        if self.racha_maxima > len(self.preguntas):
+            raise ValueError("racha_maxima no puede superar el número de preguntas")
+        return self
 
 
 class PartidaResponse(BaseModel):
