@@ -14,7 +14,8 @@ final appRouter = GoRouter(
     try {
       logueado = Supabase.instance.client.auth.currentSession != null;
     } catch (_) {}
-    final enAuth = state.matchedLocation == RouteNames.loginPath ||
+    final enAuth =
+        state.matchedLocation == RouteNames.loginPath ||
         state.matchedLocation == RouteNames.registerPath;
     if (logueado && enAuth) return RouteNames.homePath;
     if (!logueado && !enAuth) return RouteNames.loginPath;

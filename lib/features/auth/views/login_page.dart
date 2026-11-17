@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/core/widgets/dialogo_app.dart';
 import 'package:miapp/core/router/route_names.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
@@ -19,11 +21,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
-  final Color bgColor = const Color(0xFFFBF2E9);
-  final Color darkTeal = const Color(0xFF103633);
-  final Color buttonTeal = const Color(0xFF136862);
-  final Color lightTealBg = const Color(0xFFE2F4EC);
-  final Color coralColor = const Color(0xFFFF5E5E);
+  final Color bgColor = const Color(0xFFEEE2CB);
+  final Color darkTeal = const Color(0xFF1B4532);
+  final Color buttonTeal = const Color(0xFF1B4532);
+  final Color lightTealBg = const Color(0xFFDDE2CC);
+  final Color coralColor = const Color(0xFFEE4129);
 
   @override
   void dispose() {
@@ -86,13 +88,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         width: 70,
                         height: 70,
                         decoration: BoxDecoration(
-                          color: lightTealBg,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.darkTeal.withValues(alpha: 0.3),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
-                        child: Icon(
-                          Icons.front_hand_rounded,
-                          color: darkTeal,
-                          size: 35,
+                        // Mismo dibujo que el ícono de la app en el teléfono.
+                        child: Image.asset(
+                          'assets/branding/icono_app.png',
+                          semanticLabel: 'Logo de VOCEAN',
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -109,6 +117,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 letterSpacing: 1.5,
                               ),
                             ),
+                            const Text(
+                              'Aprende Lengua de Señas Colombiana',
+                              style: TextStyle(
+                                color: AppTheme.grey,
+                                fontSize: 13,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -117,11 +132,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: 30),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
+                      color: AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
+                          color: AppTheme.darkTeal.withValues(alpha: 0.08),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -158,25 +173,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         TextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            hintText: 'ana.aprende@gmail.com',
-                            hintStyle: TextStyle(color: Colors.grey.shade400),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: buttonTeal),
-                            ),
+                          decoration: decoracionCampo(
+                            hint: 'ana.aprende@gmail.com',
+                            icono: Icons.alternate_email_rounded,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -198,40 +197,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         TextField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            hintText: '••••••••••••',
-                            hintStyle: const TextStyle(
-                              color: Colors.black,
-                              letterSpacing: 2.0,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(color: buttonTeal),
-                            ),
-                            suffixIcon: IconButton(
+                          decoration: decoracionCampo(
+                            hint: '••••••••••••',
+                            icono: Icons.lock_outline_rounded,
+                            sufijo: IconButton(
+                              tooltip: _obscurePassword ? 'Mostrar' : 'Ocultar',
                               icon: Icon(
                                 _obscurePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Colors.grey.shade600,
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: AppTheme.grey,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
                             ),
                           ),
                         ),
@@ -272,7 +251,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               backgroundColor: buttonTeal,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
+                                borderRadius: BorderRadius.circular(18),
                               ),
                               elevation: 0,
                             ),
@@ -305,7 +284,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         Row(
                           children: [
                             Expanded(
-                              child: Divider(color: Colors.grey.shade300),
+                              child: Divider(color: AppTheme.ringBackground),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
@@ -315,17 +294,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 'o continuar con',
                                 style:
                                     textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey.shade500,
+                                      color: AppTheme.grey,
                                       fontSize: 14,
                                     ) ??
                                     TextStyle(
-                                      color: Colors.grey.shade500,
+                                      color: AppTheme.grey,
                                       fontSize: 14,
                                     ),
                               ),
                             ),
                             Expanded(
-                              child: Divider(color: Colors.grey.shade300),
+                              child: Divider(color: AppTheme.ringBackground),
                             ),
                           ],
                         ),
@@ -369,11 +348,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               text: TextSpan(
                                 style:
                                     textTheme.bodyMedium?.copyWith(
-                                      color: Colors.grey.shade600,
+                                      color: AppTheme.grey,
                                       fontSize: 15,
                                     ) ??
                                     TextStyle(
-                                      color: Colors.grey.shade600,
+                                      color: AppTheme.grey,
                                       fontSize: 15,
                                     ),
                                 children: [
@@ -410,14 +389,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }) {
     return Expanded(
       child: Material(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: Colors.grey.shade300),
-        ),
+        color: AppTheme.bgCream,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           child: SizedBox(height: 60, child: Center(child: iconWidget)),
         ),
       ),

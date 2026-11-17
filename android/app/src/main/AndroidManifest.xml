@@ -4,7 +4,7 @@
     <!-- Supabase Auth y el backend: sin esto la build release no tiene red. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="miapp"
+        android:label="Vocean"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:networkSecurityConfig="@xml/network_security_config"

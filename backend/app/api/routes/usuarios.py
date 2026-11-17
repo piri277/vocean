@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Dict, Any
+from datetime import date, datetime, timezone
+from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 
@@ -125,4 +125,30 @@ async def registrar_practica(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error al registrar la práctica.",
         )
+
+    # Historial para el calendario; si la tabla aún no existe, la racha sigue igual.
+    try:
+        db.table("practica_dia").upsert(
+            {"usuario_id": user_id, "fecha": datos.fecha.isoformat()},
+            on_conflict="usuario_id,fecha",
+            ignore_duplicates=True,
+        ).execute()
+    except Exception as e:
+        print(f"No se pudo guardar el día en practica_dia: {e}")
     return res.data[0]
+
+
+@router.get("/me/dias-practica", response_model=List[date])
+async def listar_dias_practica(
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Client = Depends(get_db),
+):
+    """Fechas (locales) en que el usuario practicó, de la más antigua a la más reciente."""
+    res = (
+        db.table("practica_dia")
+        .select("fecha")
+        .eq("usuario_id", current_user["id"])
+        .order("fecha")
+        .execute()
+    )
+    return [fila["fecha"] for fila in res.data]

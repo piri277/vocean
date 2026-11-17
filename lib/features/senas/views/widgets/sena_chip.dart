@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:miapp/core/theme/app_theme.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/models/sena_model.dart';
+import 'package:miapp/features/senas/views/widgets/icono_categoria.dart';
 
+/// Tarjeta de una seña para la cuadrícula de la categoría:
+/// imagen de referencia, nombre y estado de aprendizaje.
 class SenaChip extends StatelessWidget {
   const SenaChip({super.key, required this.sena, this.onTap});
 
@@ -11,148 +14,136 @@ class SenaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final estado = sena.estadoAprendizaje;
+    final dominada = estado is Dominada;
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      color: AppTheme.cardBg,
+      borderRadius: BorderRadius.circular(22),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(22),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
+          padding: const EdgeInsets.all(8),
+          child: Column(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: _colorForCategoria(sena.categoria),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _iconForSena(sena),
-                  style: const TextStyle(
-                    color: AppTheme.darkTeal,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    Text(
-                      sena.nombre,
-                      style: const TextStyle(
-                        color: AppTheme.darkTeal,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                    // Positioned.fill: el fondo ocupa todo el alto aunque no haya imagen.
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.lightTeal,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        padding: const EdgeInsets.all(6),
+                        child: Image.asset(
+                          imagenDeSena(sena.id),
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, _, _) => _SinImagen(sena: sena),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _resumenDescripcion(sena.descripcion),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppTheme.grey,
-                        fontSize: 12,
-                        height: 1.35,
+                    if (dominada)
+                      const Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Icon(
+                          Icons.verified_rounded,
+                          size: 18,
+                          color: AppTheme.tomato,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _colorForEstado(sena.estadoAprendizaje),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  _labelForEstado(sena.estadoAprendizaje),
-                  style: TextStyle(
-                    color: _textColorForEstado(sena.estadoAprendizaje),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
+              const SizedBox(height: 8),
+              Text(
+                sena.nombre,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppTheme.darkTeal,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: BoxDecoration(
+                      color: colorEstado(estado),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      etiquetaCorta(estado),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppTheme.grey,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  String _iconForSena(Sena sena) {
-    switch (sena.categoria) {
-      case 'Alfabeto':
-        final letras = sena.nombre.replaceAll(RegExp(r'[^A-Za-z]'), '');
-        return letras.isNotEmpty ? letras.substring(0, 1).toUpperCase() : 'A';
-      case 'Saludos':
-        return '👋';
-      case 'Números':
-        return '✋';
-      case 'Emergencias':
-        return '🆘';
-      default:
-        return '✋';
-    }
-  }
+/// Relleno cuando la seña no tiene imagen: su número, o el ícono de la categoría.
+class _SinImagen extends StatelessWidget {
+  const _SinImagen({required this.sena});
 
-  String _resumenDescripcion(String descripcion) {
-    if (descripcion.length <= 52) {
-      return descripcion;
-    }
-    return '${descripcion.substring(0, 52)}...';
-  }
+  final Sena sena;
 
-  Color _colorForCategoria(String categoria) {
-    switch (categoria) {
-      case 'Alfabeto':
-        return AppTheme.lightTeal;
-      case 'Saludos':
-        return const Color(0xFFFCE4EC);
-      case 'Números':
-        return const Color(0xFFFFF8E1);
-      case 'Emergencias':
-        return const Color(0xFFEDE7F6);
-      default:
-        return AppTheme.lightTeal;
-    }
-  }
-
-  Color _colorForEstado(EstadoAprendizaje estado) {
-    return switch (estado) {
-      Dominada() => AppTheme.lightTeal,
-      EnPractica() => const Color(0xFFFFF3E0),
-      NecesitaRepaso() => const Color(0xFFFDECEA),
-      NoIniciada() => const Color(0xFFF5F5F5),
-    };
-  }
-
-  Color _textColorForEstado(EstadoAprendizaje estado) {
-    return switch (estado) {
-      Dominada() => AppTheme.buttonTeal,
-      EnPractica() => const Color(0xFFE65100),
-      NecesitaRepaso() => const Color(0xFFB71C1C),
-      NoIniciada() => AppTheme.grey,
-    };
-  }
-
-  String _labelForEstado(EstadoAprendizaje estado) {
-    return switch (estado) {
-      Dominada() => 'Dominada',
-      EnPractica() => 'En práctica',
-      NecesitaRepaso() => 'Repaso',
-      NoIniciada() => 'Sin iniciar',
-    };
+  @override
+  Widget build(BuildContext context) {
+    final numero = sena.id.startsWith('num-') ? sena.id.substring(4) : null;
+    return Center(
+      child: numero != null
+          ? Text(
+              numero,
+              style: const TextStyle(
+                color: AppTheme.darkTeal,
+                fontSize: 40,
+                fontWeight: FontWeight.w900,
+              ),
+            )
+          : Icon(
+              iconoCategoria(sena.categoria),
+              size: 40,
+              color: AppTheme.darkTeal,
+            ),
+    );
   }
 }
+
+/// Color que identifica cada estado (punto y filtros).
+Color colorEstado(EstadoAprendizaje estado) => switch (estado) {
+  Dominada() => AppTheme.darkTeal,
+  EnPractica() => AppTheme.tomato,
+  NecesitaRepaso() => const Color(0xFFA82A17),
+  NoIniciada() => AppTheme.ringBackground,
+};
+
+String etiquetaCorta(EstadoAprendizaje estado) => switch (estado) {
+  Dominada() => 'Dominada',
+  EnPractica() => 'En práctica',
+  NecesitaRepaso() => 'Repaso',
+  NoIniciada() => 'Sin iniciar',
+};

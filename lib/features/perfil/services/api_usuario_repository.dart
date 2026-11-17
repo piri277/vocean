@@ -46,6 +46,12 @@ class ApiUsuarioRepository implements UsuarioRepository {
   }
 
   @override
+  Future<Set<DateTime>> obtenerDiasPractica() async {
+    final json = await _api.get('/usuarios/me/dias-practica') as List<dynamic>;
+    return {for (final f in json) DateTime.parse(f as String)};
+  }
+
+  @override
   Future<Usuario> actualizarNombre(String nombre) async {
     final json = await _api.patch('/usuarios/me', {'nombre': nombre.trim()});
     return _desdeJson(json as Map<String, dynamic>);

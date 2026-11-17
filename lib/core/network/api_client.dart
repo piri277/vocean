@@ -71,7 +71,17 @@ class ApiClient {
     String ruta,
     Map<String, String>? query,
   ) async {
-    final token = _auth.currentSession?.accessToken;
+    var sesion = _auth.currentSession;
+    // Al abrir la app la sesión guardada puede venir vencida y Supabase la
+    // renueva en segundo plano; sin esto la primera petición da 401.
+    if (sesion != null && sesion.isExpired) {
+      try {
+        sesion = (await _auth.refreshSession()).session ?? sesion;
+      } catch (e) {
+        debugPrint('No se pudo renovar la sesión: $e');
+      }
+    }
+    final token = sesion?.accessToken;
     final respuesta = await peticion(
       Uri.parse('$_baseUrl$ruta').replace(queryParameters: query),
       {

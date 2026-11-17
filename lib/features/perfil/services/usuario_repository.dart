@@ -17,6 +17,9 @@ abstract interface class UsuarioRepository {
     required int total,
   });
 
+  /// Fechas locales (sin hora) en que el usuario practicó.
+  Future<Set<DateTime>> obtenerDiasPractica();
+
   /// Cambia el nombre visible del usuario y devuelve el perfil actualizado.
   Future<Usuario> actualizarNombre(String nombre);
 }

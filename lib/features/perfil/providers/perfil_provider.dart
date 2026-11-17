@@ -15,6 +15,11 @@ final usuarioFutureProvider = FutureProvider<Usuario>((ref) async {
   return repo.obtenerUsuario();
 });
 
+/// Días practicados (historial del calendario de racha).
+final diasPracticaProvider = FutureProvider<Set<DateTime>>((ref) {
+  return ref.watch(usuarioRepositoryProvider).obtenerDiasPractica();
+});
+
 /// Provider síncrono que expone los datos del usuario cargado.
 final usuarioProvider = Provider<Usuario?>((ref) {
   return ref.watch(usuarioFutureProvider).value;

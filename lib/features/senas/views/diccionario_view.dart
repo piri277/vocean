@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/features/senas/views/widgets/icono_categoria.dart';
+import 'package:miapp/core/widgets/encabezado_pantalla.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
 import 'package:miapp/features/perfil/providers/perfil_provider.dart';
+import 'package:miapp/features/perfil/views/racha_calendario.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/models/sena_model.dart';
 import 'package:miapp/features/senas/providers/senas_provider.dart';
 import 'package:miapp/features/senas/views/categoria_detalle_view.dart';
-import 'package:miapp/features/senas/views/widgets/progress_ring.dart';
 
 class DiccionarioView extends ConsumerWidget {
   const DiccionarioView({super.key});
@@ -33,170 +35,122 @@ class DiccionarioView extends ConsumerWidget {
           _ => 'Estudiante',
         };
 
+    final total = senas.length;
+    final dominadas = senas
+        .where((s) => s.estadoAprendizaje is Dominada)
+        .length;
+    final enPractica = senas
+        .where(
+          (s) =>
+              s.estadoAprendizaje is EnPractica ||
+              s.estadoAprendizaje is NecesitaRepaso,
+        )
+        .length;
+
+    Widget estadoCentrado(Widget child) => Padding(
+      padding: const EdgeInsets.only(top: 48),
+      child: Center(child: child),
+    );
+
     return Scaffold(
       backgroundColor: AppTheme.bgCream,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: RefreshIndicator(
+          color: AppTheme.darkTeal,
+          onRefresh: () async {
+            ref.invalidate(senasFutureProvider);
+            await ref.read(senasFutureProvider.future);
+          },
+          // Un solo ListView: el encabezado se desplaza con el contenido.
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontFamily: 'Nunito',
-                          color: AppTheme.darkTeal,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: '¡Hola, $nombreUsuario! ',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: '👋',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2F4EC),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text('🔥', style: TextStyle(fontSize: 16)),
-                        const SizedBox(width: 4),
-                        Text(
-                          switch (racha) {
-                            0 => 'Aún no tienes racha activa',
-                            1 => '1 día',
-                            _ => '$racha días',
-                          },
-                          style: const TextStyle(
-                            color: AppTheme.darkTeal,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '¿Qué aprenderás\nhoy?',
-                style: TextStyle(
-                  color: AppTheme.darkTeal,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w900,
-                  height: 1.08,
+              EncabezadoPantalla(
+                etiqueta: '¡Hola, $nombreUsuario!',
+                pildora: PildoraInfo(
+                  icono: Icons.local_fire_department_rounded,
+                  texto: '$racha',
+                  semantica: 'Racha de $racha días. Ver calendario',
+                  onTap: () => mostrarCalendarioRacha(context, usuario),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Explora categorías y aprende a tu ritmo. Cada seña cuenta.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.grey,
-                  fontSize: 14,
-                ),
+                titulo: '¿Qué aprenderás\nhoy?',
+                subtitulo:
+                    'Explora categorías y aprende a tu ritmo. Cada seña cuenta.',
               ),
               const SizedBox(height: 18),
-              Expanded(
-                child: Builder(
-                  builder: (context) {
-                    if (senasAsync.isLoading && senas.isEmpty) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: AppTheme.darkTeal,
-                        ),
-                      );
-                    }
-
-                    if (senasAsync.hasError && senas.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.cloud_off_rounded,
-                              size: 48,
-                              color: AppTheme.grey,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'No se pudieron cargar las señas.',
-                              style: TextStyle(
-                                color: AppTheme.darkTeal,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            ElevatedButton.icon(
-                              onPressed: () => ref.refresh(senasFutureProvider),
-                              icon: const Icon(Icons.refresh_rounded),
-                              label: const Text('Reintentar'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.darkTeal,
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    if (categorias.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No hay señas disponibles por el momento.',
-                          style: TextStyle(color: AppTheme.grey),
-                        ),
-                      );
-                    }
-
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        ref.invalidate(senasFutureProvider);
-                        await ref.read(senasFutureProvider.future);
-                      },
-                      color: AppTheme.darkTeal,
-                      child: ListView.separated(
-                        itemCount: categorias.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final entry = categorias.entries.elementAt(index);
-                          final categoria = entry.key;
-                          final categoriaSenas = entry.value;
-                          final progreso = _promedioCategoria(categoriaSenas);
-
-                          return CategoriaTile(
-                            categoria: categoria,
-                            categoriaSenas: categoriaSenas,
-                            progreso: progreso,
-                          );
-                        },
+              if (senasAsync.isLoading && senas.isEmpty)
+                estadoCentrado(
+                  const CircularProgressIndicator(color: AppTheme.darkTeal),
+                )
+              else if (senasAsync.hasError && senas.isEmpty)
+                estadoCentrado(
+                  Column(
+                    children: [
+                      const Icon(
+                        Icons.cloud_off_rounded,
+                        size: 48,
+                        color: AppTheme.grey,
                       ),
-                    );
-                  },
+                      const SizedBox(height: 12),
+                      const Text(
+                        'No se pudieron cargar las señas.',
+                        style: TextStyle(
+                          color: AppTheme.darkTeal,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        onPressed: () => ref.refresh(senasFutureProvider),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Reintentar'),
+                      ),
+                    ],
+                  ),
+                )
+              else if (categorias.isEmpty)
+                estadoCentrado(
+                  const Text(
+                    'No hay señas disponibles por el momento.',
+                    style: TextStyle(color: AppTheme.grey),
+                  ),
+                )
+              else ...[
+                _ResumenProgreso(
+                  total: total,
+                  dominadas: dominadas,
+                  enPractica: enPractica,
                 ),
-              ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Categorías',
+                  style: TextStyle(
+                    color: AppTheme.darkTeal,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GridView(
+                  // Alto fijo al contenido: sin hueco vacío en la tarjeta.
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    mainAxisExtent: 176,
+                  ),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    for (final entry in categorias.entries)
+                      CategoriaTile(
+                        categoria: entry.key,
+                        categoriaSenas: entry.value,
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -213,190 +167,164 @@ class DiccionarioView extends ConsumerWidget {
 
     return grouped;
   }
+}
 
-  double _promedioCategoria(List<Sena> senas) {
-    if (senas.isEmpty) return 0;
+/// Resumen del avance global: dominadas, en práctica y barra total.
+class _ResumenProgreso extends StatelessWidget {
+  const _ResumenProgreso({
+    required this.total,
+    required this.dominadas,
+    required this.enPractica,
+  });
 
-    final total = senas.fold<double>(0, (sum, sena) {
-      return sum + _progressForSena(sena);
-    });
+  final int total;
+  final int dominadas;
+  final int enPractica;
 
-    return (total / senas.length).clamp(0.0, 1.0);
-  }
+  @override
+  Widget build(BuildContext context) {
+    final avance = total == 0 ? 0.0 : dominadas / total;
+    Widget dato(String valor, String etiqueta, Color color) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            valor,
+            style: TextStyle(
+              color: color,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          Text(
+            etiqueta,
+            style: const TextStyle(color: AppTheme.grey, fontSize: 12),
+          ),
+        ],
+      ),
+    );
 
-  double _progressForSena(Sena sena) {
-    return switch (sena.estadoAprendizaje) {
-      Dominada(:final precision) => precision.clamp(0.0, 1.0),
-      EnPractica() => 0.35,
-      NecesitaRepaso() => 0.28,
-      NoIniciada() => 0.0,
-    };
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBg,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              dato('$dominadas', 'Dominadas', AppTheme.darkTeal),
+              dato('$enPractica', 'En práctica', AppTheme.tomato),
+              dato(
+                '${(avance * 100).round()}%',
+                'Completado',
+                AppTheme.darkTeal,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: avance,
+              minHeight: 10,
+              backgroundColor: AppTheme.ringBackground,
+              color: AppTheme.darkTeal,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
-class CategoriaTile extends StatefulWidget {
+/// Tarjeta de categoría: ícono, nombre, cantidad y barra de dominadas.
+class CategoriaTile extends StatelessWidget {
   const CategoriaTile({
     super.key,
     required this.categoria,
     required this.categoriaSenas,
-    required this.progreso,
   });
 
   final String categoria;
   final List<Sena> categoriaSenas;
-  final double progreso;
-
-  @override
-  State<CategoriaTile> createState() => _CategoriaTileState();
-}
-
-class _CategoriaTileState extends State<CategoriaTile> {
-  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: _pressed ? 0.98 : 1.0,
-      duration: const Duration(milliseconds: 140),
-      curve: Curves.easeOut,
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        child: InkWell(
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapUp: (_) => setState(() => _pressed = false),
-          onTapCancel: () => setState(() => _pressed = false),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) =>
-                    CategoriaDetalleView(categoria: widget.categoria),
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(28),
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            curve: Curves.easeOut,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: _pressed ? 0.06 : 0.03),
-                  blurRadius: _pressed ? 14 : 10,
-                  offset: Offset(0, _pressed ? 5 : 3),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-            child: Row(
-              children: [
-                CategoryDropletIcon(
-                  color: _colorForCategoria(widget.categoria),
-                  emoji: _iconForCategoria(widget.categoria),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.categoria,
-                        style: const TextStyle(
-                          color: AppTheme.darkTeal,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${widget.categoriaSenas.length} señas',
-                        style: TextStyle(color: AppTheme.grey, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                ProgressRing(progress: widget.progreso, size: 42),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+    final total = categoriaSenas.length;
+    final dominadas = categoriaSenas
+        .where((s) => s.estadoAprendizaje is Dominada)
+        .length;
+    final avance = total == 0 ? 0.0 : dominadas / total;
 
-  Color _colorForCategoria(String categoria) {
-    switch (categoria) {
-      case 'Alfabeto':
-        return AppTheme.lightTeal;
-      case 'Saludos':
-        return const Color(0xFFFCE4EC);
-      case 'Números':
-        return const Color(0xFFFFF8E1);
-      case 'Emergencias':
-        return const Color(0xFFEDE7F6);
-      default:
-        return AppTheme.lightTeal;
-    }
-  }
-
-  String _iconForCategoria(String categoria) {
-    switch (categoria) {
-      case 'Alfabeto':
-        return '🤟';
-      case 'Saludos':
-        return '🖐️';
-      case 'Números':
-        return '🤙';
-      case 'Emergencias':
-        return '🤝';
-      default:
-        return '✋';
-    }
-  }
-}
-
-class CategoryDropletIcon extends StatelessWidget {
-  const CategoryDropletIcon({
-    super.key,
-    required this.color,
-    required this.emoji,
-  });
-
-  final Color color;
-  final String emoji;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 86,
-      height: 86,
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: AppTheme.cardBg,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.18),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => CategoriaDetalleView(categoria: categoria),
           ),
-        ],
-      ),
-      alignment: Alignment.center,
-      child: Container(
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(18),
         ),
-        alignment: Alignment.center,
-        child: Text(emoji, style: const TextStyle(fontSize: 34)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightTeal,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Icon(
+                      iconoCategoria(categoria),
+                      size: 34,
+                      color: AppTheme.darkTeal,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 20,
+                    color: AppTheme.grey,
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                categoria,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppTheme.darkTeal,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$dominadas de $total dominadas',
+                style: const TextStyle(color: AppTheme.grey, fontSize: 12),
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: avance,
+                  minHeight: 6,
+                  backgroundColor: AppTheme.ringBackground,
+                  color: AppTheme.tomato,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

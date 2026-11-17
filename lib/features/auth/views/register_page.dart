@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/core/widgets/dialogo_app.dart';
 import 'package:miapp/core/router/route_names.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
@@ -22,10 +24,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  final Color bgColor = const Color(0xFFFBF2E9);
-  final Color darkTeal = const Color(0xFF103633);
-  final Color buttonTeal = const Color(0xFF136862);
-  final Color coralColor = const Color(0xFFFF5E5E);
+  final Color bgColor = const Color(0xFFEEE2CB);
+  final Color darkTeal = const Color(0xFF1B4532);
+  final Color buttonTeal = const Color(0xFF1B4532);
+  final Color coralColor = const Color(0xFFEE4129);
 
   @override
   void dispose() {
@@ -80,25 +82,43 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         width: 70,
                         height: 70,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE2F4EC),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.darkTeal.withValues(alpha: 0.3),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
-                        child: Icon(
-                          Icons.front_hand_rounded,
-                          color: darkTeal,
-                          size: 35,
+                        // Mismo dibujo que el ícono de la app en el teléfono.
+                        child: Image.asset(
+                          'assets/branding/icono_app.png',
+                          semanticLabel: 'Logo de VOCEAN',
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: Text(
-                          'VOCEAN',
-                          style: GoogleFonts.poppins(
-                            color: darkTeal,
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'VOCEAN',
+                              style: GoogleFonts.poppins(
+                                color: darkTeal,
+                                fontSize: 34,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            const Text(
+                              'Aprende Lengua de Señas Colombiana',
+                              style: TextStyle(
+                                color: AppTheme.grey,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -106,11 +126,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   const SizedBox(height: 30),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
+                      color: AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
+                          color: AppTheme.darkTeal.withValues(alpha: 0.08),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -131,7 +151,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         const SizedBox(height: 20),
                         _fieldLabel('Nombre', textTheme),
                         const SizedBox(height: 8),
-                        _textField(_nameController, 'Tu nombre', false),
+                        _textField(
+                          _nameController,
+                          'Tu nombre',
+                          false,
+                          icono: Icons.badge_outlined,
+                        ),
                         const SizedBox(height: 16),
                         _fieldLabel('Correo electrónico', textTheme),
                         const SizedBox(height: 8),
@@ -139,6 +164,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           _emailController,
                           'ana.aprende@gmail.com',
                           false,
+                          icono: Icons.alternate_email_rounded,
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 16),
@@ -148,6 +174,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           _passwordController,
                           '••••••••••••',
                           _obscurePassword,
+                          icono: Icons.lock_outline_rounded,
                           suffixAction: () {
                             setState(() {
                               _obscurePassword = !_obscurePassword;
@@ -161,6 +188,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           _confirmPasswordController,
                           '••••••••••••',
                           _obscureConfirmPassword,
+                          icono: Icons.lock_reset_rounded,
                           suffixAction: () {
                             setState(() {
                               _obscureConfirmPassword =
@@ -179,7 +207,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               backgroundColor: buttonTeal,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
+                                borderRadius: BorderRadius.circular(18),
                               ),
                             ),
                             child: authState is AuthLoading
@@ -220,11 +248,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               text: TextSpan(
                                 style:
                                     textTheme.bodyMedium?.copyWith(
-                                      color: Colors.grey.shade600,
+                                      color: AppTheme.grey,
                                       fontSize: 15,
                                     ) ??
                                     TextStyle(
-                                      color: Colors.grey.shade600,
+                                      color: AppTheme.grey,
                                       fontSize: 15,
                                     ),
                                 children: [
@@ -234,7 +262,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   TextSpan(
                                     text: 'Inicia sesión',
                                     style: TextStyle(
-                                      color: buttonTeal,
+                                      color: coralColor,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -272,6 +300,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     TextEditingController controller,
     String hint,
     bool obscure, {
+    required IconData icono,
     VoidCallback? suffixAction,
     TextInputType keyboardType = TextInputType.text,
   }) {
@@ -279,30 +308,19 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       controller: controller,
       obscureText: obscure,
       keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade400),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: buttonTeal),
-        ),
-        suffixIcon: suffixAction == null
+      decoration: decoracionCampo(
+        hint: hint,
+        icono: icono,
+        sufijo: suffixAction == null
             ? null
             : IconButton(
+                tooltip: obscure ? 'Mostrar' : 'Ocultar',
                 onPressed: suffixAction,
                 icon: Icon(
-                  obscure ? Icons.visibility : Icons.visibility_off,
-                  color: Colors.grey.shade600,
+                  obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  color: AppTheme.grey,
                 ),
               ),
       ),

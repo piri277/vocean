@@ -10,7 +10,8 @@ class SesionSegura extends LocalStorage {
     FlutterSecureStorage? almacen,
     LocalStorage? anterior,
   }) : _almacen = almacen ?? const FlutterSecureStorage(),
-       _anterior = anterior ?? SharedPreferencesLocalStorage(persistSessionKey: clave);
+       _anterior =
+           anterior ?? SharedPreferencesLocalStorage(persistSessionKey: clave);
 
   /// Misma clave que usa supabase_flutter: `sb-<ref>-auth-token`.
   final String clave;

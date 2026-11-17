@@ -4,7 +4,8 @@ import 'package:miapp/core/network/api_client.dart';
 void main() {
   test('H-06: en release rechaza una API_URL con http', () {
     expect(
-      () => ApiClient.validarBaseUrl('http://api.ejemplo.com/api', release: true),
+      () =>
+          ApiClient.validarBaseUrl('http://api.ejemplo.com/api', release: true),
       throwsStateError,
     );
   });

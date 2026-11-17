@@ -26,16 +26,19 @@ void main() {
 
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
 
-  test('H-05: guarda la sesión en el almacén seguro, no en texto plano', () async {
-    final plano = _AlmacenPlano();
-    final sesion = SesionSegura(clave: clave, anterior: plano);
-    await sesion.initialize();
+  test(
+    'H-05: guarda la sesión en el almacén seguro, no en texto plano',
+    () async {
+      final plano = _AlmacenPlano();
+      final sesion = SesionSegura(clave: clave, anterior: plano);
+      await sesion.initialize();
 
-    await sesion.persistSession('{"refresh_token":"r"}');
+      await sesion.persistSession('{"refresh_token":"r"}');
 
-    expect(await sesion.accessToken(), '{"refresh_token":"r"}');
-    expect(plano.valor, isNull);
-  });
+      expect(await sesion.accessToken(), '{"refresh_token":"r"}');
+      expect(plano.valor, isNull);
+    },
+  );
 
   test('H-05: migra la sesión vieja y la borra de SharedPreferences', () async {
     final plano = _AlmacenPlano('{"refresh_token":"viejo"}');

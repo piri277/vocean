@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/core/widgets/encabezado_pantalla.dart';
 import 'package:miapp/features/juego/models/dificultad_model.dart';
 import 'package:miapp/features/perfil/providers/perfil_provider.dart';
 
@@ -155,46 +156,36 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
     return Scaffold(
       backgroundColor: AppTheme.bgCream,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                '¿Qué está\ndiciendo?',
-                style: TextStyle(
-                  color: AppTheme.darkTeal,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w900,
-                  height: 1.08,
+        // Un solo ListView: el encabezado se desplaza con el contenido.
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          children: [
+            EncabezadoPantalla(
+              etiqueta: 'Modo juego',
+              pildora: PildoraInfo(
+                icono: Icons.star_rounded,
+                texto: '${ref.watch(usuarioProvider)?.xpTotal ?? 0} XP',
+              ),
+              titulo: '¿Qué está diciendo?',
+              subtitulo: _jugando && !terminado
+                  ? 'Ronda ${_ronda + 1} de ${_preguntas.length}'
+                  : 'Une las señas, descubre la palabra y suma XP.',
+            ),
+            const SizedBox(height: 22),
+            if (_datos == null)
+              const Padding(
+                padding: EdgeInsets.only(top: 40),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppTheme.darkTeal),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                _jugando && !terminado
-                    ? 'Ronda ${_ronda + 1} de ${_preguntas.length}'
-                    : 'Une las señas, descubre la palabra y suma puntos.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.grey,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 18),
-              Expanded(
-                child: _datos == null
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: AppTheme.darkTeal,
-                        ),
-                      )
-                    : !_jugando
-                    ? _menu()
-                    : terminado
-                    ? _resultado()
-                    : _pregunta(),
-              ),
-            ],
-          ),
+              )
+            else if (!_jugando)
+              ..._menu()
+            else if (terminado)
+              _resultado()
+            else
+              ..._pregunta(),
+          ],
         ),
       ),
     );
@@ -212,35 +203,38 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
     ),
   );
 
-  Widget _menu() {
-    return ListView(
-      children: [
-        _titulo('Categoría'),
-        for (final c in _Categoria.values)
-          _OpcionCard(
-            emoji: _emojiCategoria[c]!,
-            color: _colorCategoria[c]!,
-            titulo: _etiquetaCategoria[c]!,
-            detalle: _detalleCategoria[c]!,
-            seleccionada: _categoria == c,
-            onTap: () => setState(() => _categoria = c),
-          ),
-        const SizedBox(height: 8),
-        _titulo('Dificultad'),
-        for (final d in Dificultad.values)
-          _OpcionCard(
-            emoji: _emojiDificultad[d]!,
-            color: _colorDificultad[d]!,
-            titulo: _etiquetaDificultad[d]!,
-            detalle: _detalleDificultad[d]!,
-            seleccionada: _dificultad == d,
-            onTap: () => setState(() => _dificultad = d),
-          ),
-        const SizedBox(height: 8),
-        _BotonPrincipal(texto: 'Empezar', onPressed: () => setState(_empezar)),
-        const SizedBox(height: 8),
-      ],
-    );
+  List<Widget> _menu() {
+    return [
+      _titulo('Elige el modo'),
+      Row(
+        children: [
+          for (final c in _Categoria.values) ...[
+            if (c != _Categoria.values.first) const SizedBox(width: 10),
+            Expanded(
+              child: _ModoTile(
+                icono: _iconoCategoria[c]!,
+                titulo: _etiquetaCategoria[c]!,
+                detalle: _detalleCategoria[c]!,
+                seleccionado: _categoria == c,
+                onTap: () => setState(() => _categoria = c),
+              ),
+            ),
+          ],
+        ],
+      ),
+      const SizedBox(height: 24),
+      _titulo('Dificultad'),
+      _SelectorDificultad(
+        actual: _dificultad,
+        onChanged: (d) => setState(() => _dificultad = d),
+      ),
+      const SizedBox(height: 24),
+      _ResumenPartida(
+        modo: _etiquetaCategoria[_categoria]!,
+        dificultad: _dificultad,
+        onEmpezar: () => setState(_empezar),
+      ),
+    ];
   }
 
   Widget _resultado() {
@@ -252,7 +246,11 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('🏆', style: TextStyle(fontSize: 52)),
+            const Icon(
+              Icons.emoji_events_outlined,
+              size: 56,
+              color: AppTheme.tomato,
+            ),
             const SizedBox(height: 8),
             Text(
               '$_aciertos / ${_preguntas.length}',
@@ -270,7 +268,7 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 color: _mensajeXp?.startsWith('+') ?? false
-                    ? const Color(0xFFFF9600)
+                    ? const Color(0xFFEE4129)
                     : AppTheme.grey,
               ),
             ),
@@ -295,73 +293,105 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
     );
   }
 
-  Widget _pregunta() {
+  List<Widget> _pregunta() {
     final correcta = _preguntas[_ronda];
     final size = correcta.length > 7 ? 48.0 : 64.0;
-    return ListView(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: _decoracionCard,
-          child: Column(
-            children: [
-              const Text(
-                '¿Qué forman estas señas?',
-                style: TextStyle(
-                  color: AppTheme.darkTeal,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value:
+                    (_ronda + (_elegida == null ? 0 : 1)) / _preguntas.length,
+                minHeight: 10,
+                backgroundColor: AppTheme.ringBackground,
+                color: AppTheme.darkTeal,
               ),
-              const SizedBox(height: 14),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final c in correcta.split(''))
-                    Container(
-                      width: size,
-                      height: size,
-                      decoration: BoxDecoration(
-                        color: AppTheme.lightTeal,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Image.asset(
-                        _asset(c),
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => Center(
-                          child: Text(
-                            c.toUpperCase(),
-                            style: const TextStyle(color: AppTheme.grey),
-                          ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Icon(Icons.check_rounded, size: 18, color: AppTheme.darkTeal),
+          Text(
+            '$_aciertos',
+            style: const TextStyle(
+              color: AppTheme.darkTeal,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+      Container(
+        padding: const EdgeInsets.all(18),
+        decoration: _decoracionCard,
+        child: Column(
+          children: [
+            const Text(
+              '¿Qué forman estas señas?',
+              style: TextStyle(
+                color: AppTheme.darkTeal,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final c in correcta.split(''))
+                  Container(
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightTeal,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      _asset(c),
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => Center(
+                        child: Text(
+                          c.toUpperCase(),
+                          style: const TextStyle(color: AppTheme.grey),
                         ),
                       ),
                     ),
-                ],
-              ),
-            ],
-          ),
+                  ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        for (final o in _opciones)
-          _RespuestaCard(
-            texto: o.toUpperCase(),
-            estado: _estadoOpcion(o, correcta),
-            onTap: () => _elegir(o),
-          ),
-        if (_elegida != null) ...[
-          const SizedBox(height: 4),
-          _BotonPrincipal(
-            texto: _ronda + 1 < _preguntas.length
-                ? 'Siguiente'
-                : 'Ver resultado',
-            onPressed: _siguiente,
-          ),
+      ),
+      const SizedBox(height: 16),
+      GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 2.2,
+        children: [
+          for (final o in _opciones)
+            _RespuestaCard(
+              texto: o.toUpperCase(),
+              estado: _estadoOpcion(o, correcta),
+              onTap: () => _elegir(o),
+            ),
         ],
+      ),
+      if (_elegida != null) ...[
+        const SizedBox(height: 16),
+        _BotonPrincipal(
+          texto: _ronda + 1 < _preguntas.length ? 'Siguiente' : 'Ver resultado',
+          onPressed: _siguiente,
+        ),
       ],
-    );
+    ];
   }
 
   _Estado _estadoOpcion(String o, String correcta) {
@@ -375,7 +405,7 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
 enum _Estado { neutra, correcta, incorrecta, apagada }
 
 final _decoracionCard = BoxDecoration(
-  color: Colors.white,
+  color: AppTheme.cardBg,
   borderRadius: BorderRadius.circular(28),
   boxShadow: [
     BoxShadow(
@@ -386,32 +416,29 @@ final _decoracionCard = BoxDecoration(
   ],
 );
 
-const _emojiCategoria = {
-  _Categoria.palabras: '🔤',
-  _Categoria.numeros: '🔢',
-  _Categoria.mezcla: '🎲',
-};
-const _colorCategoria = {
-  _Categoria.palabras: AppTheme.lightTeal,
-  _Categoria.numeros: Color(0xFFFFF8E1),
-  _Categoria.mezcla: Color(0xFFEDE7F6),
+const _iconoCategoria = {
+  _Categoria.palabras: Icons.abc_rounded,
+  _Categoria.numeros: Icons.pin_outlined,
+  _Categoria.mezcla: Icons.shuffle_rounded,
 };
 const _detalleCategoria = {
   _Categoria.palabras: 'Adivina palabras letra por letra',
   _Categoria.numeros: 'Adivina números dígito por dígito',
   _Categoria.mezcla: 'Palabras y números juntos',
 };
-const _emojiDificultad = {
-  Dificultad.facil: '🌱',
-  Dificultad.medio: '🌿',
-  Dificultad.dificil: '🔥',
-  Dificultad.extremo: '⚡',
+// Barras de señal: más barras, más difícil.
+const _iconoDificultad = {
+  Dificultad.facil: Icons.signal_cellular_alt_1_bar_rounded,
+  Dificultad.medio: Icons.signal_cellular_alt_2_bar_rounded,
+  Dificultad.dificil: Icons.signal_cellular_alt_rounded,
+  Dificultad.extremo: Icons.bolt_rounded,
 };
-const _colorDificultad = {
-  Dificultad.facil: AppTheme.lightTeal,
-  Dificultad.medio: Color(0xFFFFF8E1),
-  Dificultad.dificil: Color(0xFFFCE4EC),
-  Dificultad.extremo: Color(0xFFEDE7F6),
+// Igual que XP_JUEGO en backend/app/core/progreso.py.
+const _xpDificultad = {
+  Dificultad.facil: 20,
+  Dificultad.medio: 30,
+  Dificultad.dificil: 40,
+  Dificultad.extremo: 50,
 };
 const _detalleDificultad = {
   Dificultad.facil: '2 a 3 señas',
@@ -420,82 +447,232 @@ const _detalleDificultad = {
   Dificultad.extremo: '8 o más señas',
 };
 
-class _OpcionCard extends StatelessWidget {
-  const _OpcionCard({
-    required this.emoji,
-    required this.color,
+/// Tarjeta cuadrada de un modo; la elegida se rellena de verde abeto.
+class _ModoTile extends StatelessWidget {
+  const _ModoTile({
+    required this.icono,
     required this.titulo,
     required this.detalle,
-    required this.seleccionada,
+    required this.seleccionado,
     required this.onTap,
   });
 
-  final String emoji;
-  final Color color;
+  final IconData icono;
   final String titulo;
   final String detalle;
-  final bool seleccionada;
+  final bool seleccionado;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    final frente = seleccionado ? AppTheme.bgCream : AppTheme.darkTeal;
+    return Semantics(
+      button: true,
+      selected: seleccionado,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          padding: const EdgeInsets.all(14),
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          height: 150,
+          padding: const EdgeInsets.all(12),
           decoration: _decoracionCard.copyWith(
-            border: Border.all(
-              color: seleccionada ? AppTheme.buttonTeal : Colors.transparent,
-              width: 2,
-            ),
+            color: seleccionado ? AppTheme.darkTeal : AppTheme.cardBg,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: seleccionado
+                ? [
+                    BoxShadow(
+                      color: AppTheme.darkTeal.withValues(alpha: 0.3),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : _decoracionCard.boxShadow,
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 26)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: seleccionado
+                          ? AppTheme.bgCream.withValues(alpha: 0.15)
+                          : AppTheme.lightTeal,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icono, color: frente),
+                  ),
+                  if (seleccionado)
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      size: 20,
+                      color: AppTheme.tomato,
+                    ),
+                ],
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: const TextStyle(
-                        color: AppTheme.darkTeal,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      detalle,
-                      style: const TextStyle(
-                        color: AppTheme.grey,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+              const Spacer(),
+              Text(
+                titulo,
+                style: TextStyle(
+                  color: frente,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-              if (seleccionada)
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: AppTheme.buttonTeal,
+              const SizedBox(height: 2),
+              Text(
+                detalle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: frente.withValues(alpha: 0.7),
+                  fontSize: 11.5,
+                  height: 1.2,
                 ),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Barra segmentada de dificultad: la elegida resalta en rojo tomate.
+class _SelectorDificultad extends StatelessWidget {
+  const _SelectorDificultad({required this.actual, required this.onChanged});
+
+  final Dificultad actual;
+  final ValueChanged<Dificultad> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: _decoracionCard.copyWith(
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Row(
+        children: [
+          for (final d in Dificultad.values)
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: d == actual,
+                child: GestureDetector(
+                  onTap: () => onChanged(d),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: d == actual ? AppTheme.tomato : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          _iconoDificultad[d],
+                          size: 20,
+                          color: d == actual ? Colors.white : AppTheme.darkTeal,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _etiquetaDificultad[d]!,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: d == actual
+                                ? Colors.white
+                                : AppTheme.darkTeal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Resumen de la partida elegida y botón para empezar.
+class _ResumenPartida extends StatelessWidget {
+  const _ResumenPartida({
+    required this.modo,
+    required this.dificultad,
+    required this.onEmpezar,
+  });
+
+  final String modo;
+  final Dificultad dificultad;
+  final VoidCallback onEmpezar;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget dato(IconData icono, String texto) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icono, size: 16, color: AppTheme.grey),
+        const SizedBox(width: 4),
+        Text(texto, style: const TextStyle(color: AppTheme.grey, fontSize: 13)),
+      ],
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: _decoracionCard.copyWith(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$modo · ${_etiquetaDificultad[dificultad]}',
+            style: const TextStyle(
+              color: AppTheme.darkTeal,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 14,
+            runSpacing: 6,
+            children: [
+              dato(Icons.flag_outlined, '$_rondas rondas'),
+              dato(Icons.back_hand_outlined, _detalleDificultad[dificultad]!),
+              dato(
+                Icons.star_outline_rounded,
+                '+${_xpDificultad[dificultad]} XP al ganar',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onEmpezar,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text(
+                'Empezar',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -521,41 +698,46 @@ class _RespuestaCard extends StatelessWidget {
         Icons.check_circle_rounded,
       ),
       _Estado.incorrecta => (
-        const Color(0xFFFDECEA),
+        const Color(0xFFF8D5CC),
         AppTheme.coral,
         Icons.cancel_rounded,
       ),
-      _Estado.apagada => (Colors.white, Colors.transparent, null),
-      _Estado.neutra => (Colors.white, Colors.transparent, null),
+      _Estado.apagada => (AppTheme.cardBg, Colors.transparent, null),
+      _Estado.neutra => (AppTheme.cardBg, Colors.transparent, null),
     };
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          decoration: _decoracionCard.copyWith(
-            color: fondo,
-            border: Border.all(color: borde, width: 2),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  texto,
-                  style: TextStyle(
-                    color: estado == _Estado.apagada
-                        ? AppTheme.grey
-                        : AppTheme.darkTeal,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: _decoracionCard.copyWith(
+          color: fondo,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borde, width: 2),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                texto,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: estado == _Estado.apagada
+                      ? AppTheme.grey
+                      : AppTheme.darkTeal,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              if (icono != null) Icon(icono, color: borde),
+            ),
+            if (icono != null) ...[
+              const SizedBox(width: 6),
+              Icon(icono, color: borde, size: 20),
             ],
-          ),
+          ],
         ),
       ),
     );

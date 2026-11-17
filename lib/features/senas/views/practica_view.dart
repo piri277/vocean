@@ -81,6 +81,7 @@ class _PracticaViewState extends ConsumerState<PracticaView>
     }
     // Después de la seña, que es la que suma la XP.
     ref.invalidate(usuarioFutureProvider);
+    ref.invalidate(diasPracticaProvider);
   }
 
   @override
@@ -148,7 +149,7 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                   child: Center(
                     child: state.isLoading
                         ? const CircularProgressIndicator(
-                            color: Color(0xFF136862),
+                            color: Color(0xFF1B4532),
                           )
                         : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -178,7 +179,7 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                                   icon: const Icon(Icons.refresh_rounded),
                                   label: const Text('Reintentar'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF136862),
+                                    backgroundColor: const Color(0xFF1B4532),
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -281,13 +282,13 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                                         height: 22,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
-                                          color: Color(0xFF136862),
+                                          color: Color(0xFF1B4532),
                                         ),
                                       ),
                                     )
                                   : const Icon(
                                       Icons.flip_camera_android_rounded,
-                                      color: Color(0xFF136862),
+                                      color: Color(0xFF1B4532),
                                       size: 26,
                                     ),
                             ),
@@ -317,7 +318,7 @@ class _PracticaViewState extends ConsumerState<PracticaView>
                                 : 'Reconocer seña',
                           ),
                           style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF136862),
+                            backgroundColor: const Color(0xFF1B4532),
                           ),
                         ),
                       ),

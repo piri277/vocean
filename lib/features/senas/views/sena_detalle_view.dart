@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/features/senas/views/widgets/icono_categoria.dart';
 import 'package:miapp/features/perfil/views/racha_celebracion.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/providers/senas_provider.dart';
 import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 import 'package:miapp/features/senas/views/practica_view.dart';
+import 'package:miapp/features/senas/views/widgets/sena_chip.dart';
 
 class SenaDetalleView extends ConsumerWidget {
   const SenaDetalleView({super.key, required this.senaId});
@@ -20,9 +22,7 @@ class SenaDetalleView extends ConsumerWidget {
         .firstWhere((item) => item.id == senaId);
 
     final estado = sena.estadoAprendizaje;
-    final imagen = senaId.startsWith('num-')
-        ? 'assets/numeros/${senaId.substring(4)}.png'
-        : 'assets/letras/${senaId.replaceFirst('alfa-', '')}.png';
+    final imagen = imagenDeSena(senaId);
     final numero = senaId.startsWith('num-')
         ? int.tryParse(senaId.substring(4))
         : null;
@@ -35,139 +35,168 @@ class SenaDetalleView extends ConsumerWidget {
         : null;
     final practicable = objetivo != null;
 
+    Future<void> practicar() async {
+      _iniciarPractica(ref);
+      // La cámara devuelve la subida de racha si hubo acierto.
+      final racha = await Navigator.push(
+        context,
+        MaterialPageRoute<SubidaRacha?>(
+          builder: (_) => PracticaView(
+            senaId: senaId,
+            objetivo: objetivo,
+            imagenReferencia: imagen,
+          ),
+        ),
+      );
+      if (racha != null && context.mounted) {
+        mostrarCelebracionRacha(
+          context,
+          anterior: racha.anterior,
+          nueva: racha.nueva,
+        );
+      }
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.bgCream,
       appBar: AppBar(
-        title: const Text('Volver'),
         backgroundColor: AppTheme.bgCream,
         foregroundColor: AppTheme.darkTeal,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          sena.categoria,
+          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+        ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: _colorForCategoria(sena.categoria),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      _iconForCategoria(sena.categoria),
-                      style: const TextStyle(fontSize: 26),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          sena.nombre,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                color: AppTheme.darkTeal,
-                                fontWeight: FontWeight.w800,
-                              ),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _colorForEstado(estado),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            estado.etiqueta,
-                            style: TextStyle(
-                              color: _textColorForEstado(estado),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                sena.descripcion,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF666666),
-                  height: 1.6,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        children: [
+          // Imagen grande sobre tarjeta verde, con el estado encima.
+          Container(
+            height: 300,
+            decoration: BoxDecoration(
+              color: AppTheme.darkTeal,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.darkTeal.withValues(alpha: 0.28),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
                 ),
-              ),
-              if (practicable) ...[
-                const SizedBox(height: 20),
-                _ProgresoDominio(estado: estado),
               ],
-              const SizedBox(height: 20),
-              Container(
-                height: 340,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFDDDDDD), width: 2),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Image.asset(
-                  imagen,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Icon(
-                    Icons.image_not_supported_outlined,
-                    size: 44,
-                    color: Color(0xFFBBBBBB),
+            ),
+            padding: const EdgeInsets.all(14),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 40),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    padding: const EdgeInsets.all(12),
+                    child: Image.asset(
+                      imagen,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => Icon(
+                        iconoCategoria(sena.categoria),
+                        size: 64,
+                        color: AppTheme.darkTeal,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: practicable
-                      ? () async {
-                          _iniciarPractica(ref);
-                          // La cámara devuelve la subida de racha si hubo acierto.
-                          final racha = await Navigator.push(
-                            context,
-                            MaterialPageRoute<SubidaRacha?>(
-                              builder: (_) => PracticaView(
-                                senaId: senaId,
-                                objetivo: objetivo,
-                                imagenReferencia: imagen,
-                              ),
-                            ),
-                          );
-                          if (racha != null && context.mounted) {
-                            mostrarCelebracionRacha(
-                              context,
-                              anterior: racha.anterior,
-                              nueva: racha.nueva,
-                            );
-                          }
-                        }
-                      : null,
-                  child: Text(
-                    practicable
-                        ? 'Practicar esta seña'
-                        : 'Practicar esta seña (próximamente)',
-                  ),
+                Row(
+                  children: [
+                    Icon(
+                      iconoCategoria(sena.categoria),
+                      color: AppTheme.bgCream,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      sena.categoria.toUpperCase(),
+                      style: TextStyle(
+                        color: AppTheme.bgCream.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: estado is Dominada
+                            ? AppTheme.tomato
+                            : AppTheme.bgCream.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        etiquetaCorta(estado),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            sena.nombre,
+            style: const TextStyle(
+              color: AppTheme.darkTeal,
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _Tarjeta(
+            icono: Icons.back_hand_outlined,
+            titulo: 'Cómo se hace',
+            child: Text(
+              sena.descripcion,
+              style: const TextStyle(
+                color: AppTheme.darkTeal,
+                fontSize: 15,
+                height: 1.5,
               ),
-            ],
+            ),
+          ),
+          if (practicable) ...[
+            const SizedBox(height: 12),
+            _ProgresoDominio(estado: estado),
+          ],
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: ElevatedButton.icon(
+            onPressed: practicable ? practicar : null,
+            icon: const Icon(Icons.videocam_outlined),
+            label: Text(
+              practicable ? 'Practicar con la cámara' : 'Práctica próximamente',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
           ),
         ),
       ),
@@ -183,54 +212,6 @@ class SenaDetalleView extends ConsumerWidget {
     } catch (e) {
       debugPrint('No se pudo iniciar la práctica de $senaId: $e');
     }
-  }
-
-  Color _colorForCategoria(String categoria) {
-    switch (categoria) {
-      case 'Alfabeto':
-        return AppTheme.lightTeal;
-      case 'Saludos':
-        return const Color(0xFFFCE4EC);
-      case 'Números':
-        return const Color(0xFFFFF8E1);
-      case 'Emergencias':
-        return const Color(0xFFEDE7F6);
-      default:
-        return AppTheme.lightTeal;
-    }
-  }
-
-  String _iconForCategoria(String categoria) {
-    switch (categoria) {
-      case 'Alfabeto':
-        return '🤟';
-      case 'Saludos':
-        return '🖐️';
-      case 'Números':
-        return '🤙';
-      case 'Emergencias':
-        return '🤝';
-      default:
-        return '✋';
-    }
-  }
-
-  Color _colorForEstado(EstadoAprendizaje estado) {
-    return switch (estado) {
-      Dominada() => AppTheme.lightTeal,
-      EnPractica() => const Color(0xFFFFF3E0),
-      NecesitaRepaso() => const Color(0xFFFDECEA),
-      NoIniciada() => const Color(0xFFF5F5F5),
-    };
-  }
-
-  Color _textColorForEstado(EstadoAprendizaje estado) {
-    return switch (estado) {
-      Dominada() => AppTheme.buttonTeal,
-      EnPractica() => const Color(0xFFE65100),
-      NecesitaRepaso() => const Color(0xFFB71C1C),
-      NoIniciada() => AppTheme.grey,
-    };
   }
 }
 
@@ -264,50 +245,24 @@ class _ProgresoDominio extends StatelessWidget {
       ),
       Dominada() => (
         diasParaDominar,
-        '¡Seña dominada! 🎉',
+        '¡Seña dominada!',
         'La practicaste $diasParaDominar días. Repásala de vez en cuando.',
       ),
     };
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+    return _Tarjeta(
+      icono: Icons.trending_up_rounded,
+      titulo: titulo,
+      extra: Text(
+        '$dias/$diasParaDominar',
+        style: const TextStyle(
+          color: AppTheme.tomato,
+          fontWeight: FontWeight.w900,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  titulo,
-                  style: const TextStyle(
-                    color: AppTheme.darkTeal,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              Text(
-                '$dias/$diasParaDominar días',
-                style: const TextStyle(
-                  color: AppTheme.buttonTeal,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           Row(
             children: [
               for (var i = 0; i < diasParaDominar; i++) ...[
@@ -317,7 +272,7 @@ class _ProgresoDominio extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       color: i < dias
-                          ? AppTheme.buttonTeal
+                          ? AppTheme.darkTeal
                           : AppTheme.ringBackground,
                       borderRadius: BorderRadius.circular(6),
                     ),
@@ -329,8 +284,67 @@ class _ProgresoDominio extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             detalle,
-            style: const TextStyle(color: Color(0xFF666666), fontSize: 13),
+            style: const TextStyle(color: AppTheme.grey, fontSize: 13),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tarjeta crema con ícono y título, como las del juego.
+class _Tarjeta extends StatelessWidget {
+  const _Tarjeta({
+    required this.icono,
+    required this.titulo,
+    required this.child,
+    this.extra,
+  });
+
+  final IconData icono;
+  final String titulo;
+  final Widget child;
+  final Widget? extra;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBg,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: AppTheme.lightTeal,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icono, size: 18, color: AppTheme.darkTeal),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: AppTheme.darkTeal,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              ?extra,
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
         ],
       ),
     );

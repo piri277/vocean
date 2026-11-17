@@ -1,39 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:miapp/core/theme/app_theme.dart';
 
 import 'package:miapp/features/home/providers/home_navigation_provider.dart';
 import 'package:miapp/features/senas/views/diccionario_view.dart';
+import 'package:miapp/features/cultura/views/cultura_view.dart';
 import 'package:miapp/features/juego/views/juego_view.dart';
+import 'package:miapp/features/perfil/providers/perfil_provider.dart';
 import 'package:miapp/features/perfil/views/perfil_view.dart';
+import 'package:miapp/features/perfil/views/racha_celebracion.dart';
 
 /// Cascarón (shell) principal de la aplicación.
 ///
-/// Orquesta la navegación entre los tres features principales
+/// Orquesta la navegación entre los cuatro features principales
 /// mediante una barra de navegación personalizada. Solo la pestaña activa
 /// está montada. La práctica se abre desde el detalle de cada seña.
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   // ── Paleta consistente con auth ──────────────────────────────
-  static const _darkTeal = Color(0xFF136862);
-  static const _lightTealBg = Color(0xFFE2F4EC);
-  static const _grey = Color(0xFF9E9E9E);
+  static const _darkTeal = Color(0xFF1B4532);
+  static const _lightTealBg = Color(0xFFDDE2CC);
+  static const _grey = Color(0xFF8A8272);
 
   /// Datos de cada tab: icono y label.
   static const _tabs = <_NavTab>[
     _NavTab(icon: Icons.menu_book_rounded, label: 'Diccionario'),
     _NavTab(icon: Icons.videogame_asset_rounded, label: 'Juego'),
+    _NavTab(icon: Icons.auto_stories_rounded, label: 'Cultura'),
     _NavTab(icon: Icons.person_outline_rounded, label: 'Perfil'),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(homeNavigationProvider);
+    // Al cargar el perfil, avisa si la racha se perdió desde la última visita.
+    ref.listen(usuarioProvider, (anterior, usuario) {
+      if (anterior == null && usuario != null) {
+        avisarSiPerdioRacha(context, usuario);
+      }
+    });
 
     final body = switch (currentIndex) {
       0 => const DiccionarioView(),
       1 => const JuegoView(),
+      2 => const CulturaView(),
       _ => const PerfilView(),
     };
 
@@ -41,7 +53,7 @@ class HomePage extends ConsumerWidget {
       body: body,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.cardBg,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.06),
@@ -84,7 +96,7 @@ class HomePage extends ConsumerWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? _lightTealBg : Colors.transparent,
           borderRadius: BorderRadius.circular(16),

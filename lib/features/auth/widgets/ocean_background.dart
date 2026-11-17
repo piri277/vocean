@@ -1,3 +1,4 @@
+import 'package:miapp/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class OceanBackground extends StatelessWidget {
@@ -7,8 +8,11 @@ class OceanBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color waveFillColor = const Color(0xFFEBE0D3);
-    final Color waveLineColor = const Color(0xFFD9CCBE);
+    // Ondas en tonos de la paleta: verde abeto suave arriba, tomate abajo.
+    final waveFillColor = AppTheme.lightTeal;
+    final waveLineColor = AppTheme.darkTeal.withValues(alpha: 0.18);
+    final bottomFillColor = AppTheme.tomato.withValues(alpha: 0.10);
+    final bottomLineColor = AppTheme.tomato.withValues(alpha: 0.25);
 
     return Stack(
       children: [
@@ -31,8 +35,8 @@ class OceanBackground extends StatelessWidget {
           height: 220,
           child: CustomPaint(
             painter: _BottomWavePainter(
-              fillColor: waveFillColor,
-              lineColor: waveLineColor,
+              fillColor: bottomFillColor,
+              lineColor: bottomLineColor,
             ),
           ),
         ),

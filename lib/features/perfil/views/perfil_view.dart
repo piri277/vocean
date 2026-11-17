@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:miapp/core/router/route_names.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/core/widgets/dialogo_app.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
 import 'package:miapp/features/perfil/models/usuario_model.dart';
@@ -47,15 +48,6 @@ class PerfilView extends ConsumerWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
             children: [
-              Text(
-                'Mi Perfil',
-                style: GoogleFonts.nunito(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.darkTeal,
-                ),
-              ),
-              const SizedBox(height: 16),
               _Cabecera(nombre: nombre, email: email, usuario: usuario),
               const SizedBox(height: 20),
               if (usuarioAsync.hasError)
@@ -101,11 +93,9 @@ class PerfilView extends ConsumerWidget {
                   _Opcion(
                     icono: Icons.info_outline_rounded,
                     titulo: 'Acerca de VOCEAN',
-                    onTap: () => showAboutDialog(
+                    onTap: () => showDialog<void>(
                       context: context,
-                      applicationName: 'VOCEAN',
-                      applicationLegalese:
-                          'Aprende Lengua de Señas Colombiana con tu cámara.',
+                      builder: (_) => const _AcercaDe(),
                     ),
                   ),
                   _Opcion(
@@ -131,7 +121,9 @@ class PerfilView extends ConsumerWidget {
     final nuevo = await showDialog<String>(
       context: context,
       builder: (_) => _DialogoTexto(
+        icono: Icons.badge_outlined,
         titulo: 'Editar nombre',
+        descripcion: 'Así te verán en la app.',
         etiqueta: 'Nombre',
         inicial: actual,
         validar: (v) {
@@ -153,7 +145,9 @@ class PerfilView extends ConsumerWidget {
     final nueva = await showDialog<String>(
       context: context,
       builder: (_) => _DialogoTexto(
+        icono: Icons.lock_outline_rounded,
         titulo: 'Cambiar contraseña',
+        descripcion: 'Usa al menos 6 caracteres.',
         etiqueta: 'Nueva contraseña',
         oculto: true,
         confirmar: true,
@@ -171,18 +165,21 @@ class PerfilView extends ConsumerWidget {
   Future<void> _cerrarSesion(BuildContext context, WidgetRef ref) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('¿Cerrar sesión?'),
-        content: const Text('Tendrás que volver a iniciar sesión.'),
-        actions: [
-          TextButton(
+      builder: (ctx) => DialogoApp(
+        icono: Icons.logout_rounded,
+        colorIcono: AppTheme.tomato,
+        titulo: '¿Cerrar sesión?',
+        descripcion:
+            'Tu progreso queda guardado. Tendrás que volver a iniciar sesión.',
+        acciones: [
+          BotonDialogo.secundario(
+            texto: 'Cancelar',
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
           ),
-          TextButton(
+          BotonDialogo(
+            texto: 'Salir',
+            color: AppTheme.tomato,
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppTheme.coral),
-            child: const Text('Cerrar sesión'),
           ),
         ],
       ),
@@ -201,11 +198,24 @@ class PerfilView extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await accion();
-      messenger.showSnackBar(SnackBar(content: Text(exito)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: AppTheme.bgCream),
+              const SizedBox(width: 10),
+              Expanded(child: Text(exito)),
+            ],
+          ),
+        ),
+      );
     } catch (e) {
       debugPrint('Error en perfil: $e');
       messenger.showSnackBar(
-        const SnackBar(content: Text('No se pudo guardar. Intenta de nuevo.')),
+        const SnackBar(
+          backgroundColor: AppTheme.tomato,
+          content: Text('No se pudo guardar. Intenta de nuevo.'),
+        ),
       );
     }
   }
@@ -228,100 +238,159 @@ class _Cabecera extends StatelessWidget {
     final nivel = xp ~/ _xpPorNivel + 1;
     final avance = (xp % _xpPorNivel) / _xpPorNivel;
 
+    const crema = AppTheme.bgCream;
+    Widget circulo(double t, Color c) => Container(
+      width: t,
+      height: t,
+      decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+    );
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.darkTeal, AppTheme.buttonTeal],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppTheme.darkTeal,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.darkTeal.withValues(alpha: 0.25),
+            color: AppTheme.darkTeal.withValues(alpha: 0.28),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 34,
-                backgroundColor: Colors.white,
-                child: Text(
-                  nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U',
-                  style: GoogleFonts.nunito(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.darkTeal,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          Positioned(
+            right: -50,
+            top: -60,
+            child: circulo(170, crema.withValues(alpha: 0.07)),
+          ),
+          Positioned(
+            left: -30,
+            bottom: -45,
+            child: circulo(110, crema.withValues(alpha: 0.05)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      nombre,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.nunito(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
+                    Container(
+                      width: 68,
+                      height: 68,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: crema,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: crema.withValues(alpha: 0.35),
+                          width: 4,
+                          strokeAlign: BorderSide.strokeAlignOutside,
+                        ),
+                      ),
+                      child: Text(
+                        nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U',
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.darkTeal,
+                        ),
                       ),
                     ),
-                    Text(
-                      email,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.nunito(
-                        fontSize: 13,
-                        color: Colors.white70,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            nombre,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: crema,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            email,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: crema.withValues(alpha: 0.75),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.tomato,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Nivel $nivel',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${xp % _xpPorNivel} / $_xpPorNivel XP',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: crema.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'Nv. $nivel',
-                  style: GoogleFonts.nunito(
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: avance,
+                    minHeight: 10,
+                    backgroundColor: crema.withValues(alpha: 0.15),
+                    color: AppTheme.tomato,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: avance,
-              minHeight: 8,
-              backgroundColor: Colors.white24,
-              color: const Color(0xFFFFD54F),
+                const SizedBox(height: 8),
+                Text(
+                  'Te faltan ${_xpPorNivel - xp % _xpPorNivel} XP para el nivel ${nivel + 1}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: crema.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${xp % _xpPorNivel} / $_xpPorNivel XP para el nivel ${nivel + 1}',
-            style: GoogleFonts.nunito(fontSize: 12, color: Colors.white70),
           ),
         ],
       ),
@@ -339,37 +408,55 @@ class _Estadisticas extends StatelessWidget {
     final racha = usuario.rachaVigente(DateTime.now());
     final tarjetas = [
       _StatCard(
-        icon: '🔥',
+        icon: const Icon(
+          Icons.local_fire_department_outlined,
+          size: 26,
+          color: AppTheme.tomato,
+        ),
         label: 'Racha actual',
         value: '$racha ${racha == 1 ? 'día' : 'días'}',
-        color: const Color(0xFFFCE4EC),
+        color: const Color(0xFFF5D3C6),
       ),
       _StatCard(
-        icon: '🏆',
+        icon: const Icon(
+          Icons.emoji_events_outlined,
+          size: 26,
+          color: AppTheme.darkTeal,
+        ),
         label: 'Mejor racha juego',
         value: '${usuario.rachaGlobalMaxima}',
-        color: const Color(0xFFFFF3E0),
+        color: AppTheme.lightTeal,
       ),
       _StatCard(
-        icon: '⚡',
+        icon: const Icon(
+          Icons.bolt_rounded,
+          size: 26,
+          color: AppTheme.darkTeal,
+        ),
         label: 'XP total',
         value: '${usuario.xpTotal}',
-        color: const Color(0xFFFFF8E1),
+        color: AppTheme.lightTeal,
       ),
       _StatCard(
-        icon: '🎮',
+        icon: const Icon(
+          Icons.sports_esports_outlined,
+          size: 26,
+          color: AppTheme.darkTeal,
+        ),
         label: 'Partidas',
         value: '${usuario.partidasJugadas}',
         color: AppTheme.lightTeal,
       ),
     ];
-    return GridView.count(
-      crossAxisCount: 2,
+    return GridView(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        mainAxisExtent: 142,
+      ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.6,
       children: tarjetas,
     );
   }
@@ -399,44 +486,29 @@ class _ProgresoAprendizaje extends ConsumerWidget {
       children: [
         Row(
           children: [
-            Text(
+            _Contador('Dominadas', '$dominadas', AppTheme.darkTeal),
+            _Contador('En práctica', '$enPractica', AppTheme.tomato),
+            _Contador(
+              'Completado',
               '${(avance * 100).round()}%',
-              style: GoogleFonts.nunito(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: AppTheme.darkTeal,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'del diccionario dominado',
-                style: GoogleFonts.nunito(color: AppTheme.grey),
-              ),
+              AppTheme.darkTeal,
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 14),
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
             value: avance,
             minHeight: 10,
             backgroundColor: AppTheme.ringBackground,
-            color: AppTheme.buttonTeal,
+            color: AppTheme.darkTeal,
           ),
         ),
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            _Contador('Dominadas', dominadas, AppTheme.buttonTeal),
-            _Contador('En práctica', enPractica, const Color(0xFFFFA000)),
-            _Contador(
-              'Sin iniciar',
-              total - dominadas - enPractica,
-              AppTheme.grey,
-            ),
-          ],
+        const SizedBox(height: 8),
+        Text(
+          '${total - dominadas - enPractica} señas sin iniciar de $total',
+          style: const TextStyle(fontSize: 12, color: AppTheme.grey),
         ),
       ],
     );
@@ -447,18 +519,19 @@ class _Contador extends StatelessWidget {
   const _Contador(this.label, this.valor, this.color);
 
   final String label;
-  final int valor;
+  final String valor;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$valor',
+            valor,
             style: GoogleFonts.nunito(
-              fontSize: 18,
+              fontSize: 22,
               fontWeight: FontWeight.w900,
               color: color,
             ),
@@ -481,11 +554,11 @@ class _Titulo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Text(
         texto,
         style: GoogleFonts.nunito(
-          fontSize: 16,
+          fontSize: 20,
           fontWeight: FontWeight.w800,
           color: AppTheme.darkTeal,
         ),
@@ -503,22 +576,17 @@ class _Grupo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding ?? const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: AppTheme.cardBg,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
+    // Material (no Container): ListTile dibuja su fondo y su toque aquí.
+    return Material(
+      color: AppTheme.cardBg,
+      borderRadius: BorderRadius.circular(22),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        ),
       ),
     );
   }
@@ -544,16 +612,18 @@ class _Opcion extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(9),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color == AppTheme.darkTeal
+              ? AppTheme.lightTeal
+              : color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icono, color: color, size: 22),
       ),
       title: Text(
         titulo,
-        style: GoogleFonts.nunito(fontWeight: FontWeight.w700, color: color),
+        style: GoogleFonts.nunito(fontWeight: FontWeight.w800, color: color),
       ),
       subtitle: subtitulo == null
           ? null
@@ -587,7 +657,9 @@ class _Aviso extends StatelessWidget {
 /// Diálogo con un campo de texto validado; devuelve el valor al guardar.
 class _DialogoTexto extends StatefulWidget {
   const _DialogoTexto({
+    required this.icono,
     required this.titulo,
+    required this.descripcion,
     required this.etiqueta,
     required this.validar,
     this.inicial = '',
@@ -595,7 +667,9 @@ class _DialogoTexto extends StatefulWidget {
     this.confirmar = false,
   });
 
+  final IconData icono;
   final String titulo;
+  final String descripcion;
   final String etiqueta;
   final String inicial;
   final bool oculto;
@@ -612,6 +686,7 @@ class _DialogoTextoState extends State<_DialogoTexto> {
   final _form = GlobalKey<FormState>();
   late final _campo = TextEditingController(text: widget.inicial);
   final _repetir = TextEditingController();
+  late bool _ocultar = widget.oculto;
 
   @override
   void dispose() {
@@ -626,36 +701,156 @@ class _DialogoTextoState extends State<_DialogoTexto> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.titulo),
-      content: Form(
+    final ojo = widget.oculto
+        ? IconButton(
+            tooltip: _ocultar ? 'Mostrar' : 'Ocultar',
+            icon: Icon(
+              _ocultar
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+              color: AppTheme.grey,
+            ),
+            onPressed: () => setState(() => _ocultar = !_ocultar),
+          )
+        : null;
+    return DialogoApp(
+      icono: widget.icono,
+      titulo: widget.titulo,
+      descripcion: widget.descripcion,
+      contenido: Form(
         key: _form,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               controller: _campo,
               autofocus: true,
-              obscureText: widget.oculto,
-              decoration: InputDecoration(labelText: widget.etiqueta),
+              obscureText: _ocultar,
+              style: const TextStyle(
+                color: AppTheme.darkTeal,
+                fontWeight: FontWeight.w700,
+              ),
+              decoration: decoracionCampo(
+                hint: widget.etiqueta,
+                icono: widget.icono,
+                sufijo: ojo,
+              ),
               validator: (v) => widget.validar(v ?? ''),
+              onFieldSubmitted: (_) => widget.confirmar ? null : _guardar(),
             ),
-            if (widget.confirmar)
+            if (widget.confirmar) ...[
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _repetir,
-                obscureText: widget.oculto,
-                decoration: const InputDecoration(labelText: 'Repetir'),
+                obscureText: _ocultar,
+                style: const TextStyle(
+                  color: AppTheme.darkTeal,
+                  fontWeight: FontWeight.w700,
+                ),
+                decoration: decoracionCampo(
+                  hint: 'Repite la contraseña',
+                  icono: Icons.lock_reset_rounded,
+                ),
                 validator: (v) => v != _campo.text ? 'No coinciden' : null,
+                onFieldSubmitted: (_) => _guardar(),
               ),
+            ],
           ],
         ),
       ),
-      actions: [
-        TextButton(
+      acciones: [
+        BotonDialogo.secundario(
+          texto: 'Cancelar',
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
         ),
-        FilledButton(onPressed: _guardar, child: const Text('Guardar')),
+        BotonDialogo(texto: 'Guardar', onPressed: _guardar),
+      ],
+    );
+  }
+}
+
+/// Ventana «Acerca de VOCEAN»: qué es la app y qué trae.
+class _AcercaDe extends StatelessWidget {
+  const _AcercaDe();
+
+  @override
+  Widget build(BuildContext context) {
+    Widget fila(IconData icono, String titulo, String texto) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppTheme.lightTeal,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icono, size: 19, color: AppTheme.darkTeal),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: AppTheme.darkTeal,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  texto,
+                  style: const TextStyle(color: AppTheme.grey, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return DialogoApp(
+      icono: Icons.sign_language_rounded,
+      titulo: 'VOCEAN',
+      descripcion: 'Aprende Lengua de Señas Colombiana con tu cámara.',
+      contenido: Column(
+        children: [
+          fila(
+            Icons.menu_book_outlined,
+            'Diccionario',
+            'Señas por categoría con su imagen de referencia.',
+          ),
+          fila(
+            Icons.videocam_outlined,
+            'Práctica con cámara',
+            'Reconoce tu seña en tiempo real y domínala en 3 días.',
+          ),
+          fila(
+            Icons.sports_esports_outlined,
+            'Juego',
+            'Adivina palabras y números formados con señas.',
+          ),
+          fila(
+            Icons.auto_stories_outlined,
+            'Cultura',
+            'Historia y datos de la comunidad sorda.',
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Versión 1.0.0',
+            style: TextStyle(color: AppTheme.grey, fontSize: 12),
+          ),
+        ],
+      ),
+      acciones: [
+        BotonDialogo.secundario(
+          texto: 'Licencias',
+          onPressed: () =>
+              showLicensePage(context: context, applicationName: 'VOCEAN'),
+        ),
+        BotonDialogo(texto: 'Cerrar', onPressed: () => Navigator.pop(context)),
       ],
     );
   }
@@ -669,7 +864,7 @@ class _StatCard extends StatelessWidget {
     required this.color,
   });
 
-  final String icon;
+  final Widget icon;
   final String label;
   final String value;
   final Color color;
@@ -680,51 +875,39 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppTheme.cardBg,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: Text(icon, style: const TextStyle(fontSize: 20)),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    style: GoogleFonts.nunito(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.darkTeal,
-                    ),
-                  ),
-                ),
-                Text(
-                  label,
-                  maxLines: 2,
-                  style: GoogleFonts.nunito(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.grey,
-                  ),
-                ),
-              ],
+            width: 48,
+            height: 48,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(14),
             ),
+            child: icon,
+          ),
+          const Spacer(),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.darkTeal,
+              ),
+            ),
+          ),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey),
           ),
         ],
       ),

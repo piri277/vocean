@@ -35,6 +35,10 @@ class Usuario {
     return dias <= 1 ? rachaDias : 0;
   }
 
+  /// Días de la racha que se perdió por no practicar ayer ni hoy; 0 si sigue viva.
+  int rachaPerdida(DateTime hoy) =>
+      ultimaPractica != null && rachaVigente(hoy) == 0 ? rachaDias : 0;
+
   Usuario copyWith({
     int? xpTotal,
     int? partidasJugadas,
