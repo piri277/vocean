@@ -54,7 +54,8 @@ async def actualizar_perfil(
     db: Client = Depends(get_db),
 ):
     """
-    Actualiza datos del perfil del usuario (nombre o estadísticas acumuladas).
+    Actualiza el nombre del usuario. Las estadísticas solo cambian por las
+    rutas de práctica y juego, que las calculan en el servidor.
     """
     user_id = current_user["id"]
     perfil_actual_res = db.table("usuario").select("*").eq("id", user_id).execute()
@@ -65,23 +66,12 @@ async def actualizar_perfil(
             detail="Perfil de usuario no encontrado.",
         )
 
-    actual = perfil_actual_res.data[0]
     update_data: Dict[str, Any] = {
         "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
     }
 
     if datos.nombre is not None:
         update_data["nombre"] = datos.nombre.strip()
-
-    if datos.xp_incremento is not None:
-        update_data["xp_total"] = actual.get("xp_total", 0) + datos.xp_incremento
-
-    if datos.incrementar_partida:
-        update_data["partidas_jugadas"] = actual.get("partidas_jugadas", 0) + 1
-
-    if datos.nueva_racha is not None:
-        racha_actual = actual.get("racha_global_maxima", 0)
-        update_data["racha_global_maxima"] = max(racha_actual, datos.nueva_racha)
 
     res = db.table("usuario").update(update_data).eq("id", user_id).execute()
 

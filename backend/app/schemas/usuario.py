@@ -8,12 +8,11 @@ class UsuarioBase(BaseModel):
 
 
 class UsuarioUpdate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    # extra="forbid": XP, partidas y racha los calcula el servidor; si el cliente
+    # los manda, la petición se rechaza en vez de ignorarlos en silencio.
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
     # Sin espacios a los lados para que "   " no pase como nombre válido.
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=40)
-    xp_incremento: Optional[int] = Field(default=None, ge=0)
-    incrementar_partida: Optional[bool] = False
-    nueva_racha: Optional[int] = Field(default=None, ge=0)
 
 
 class UsuarioResponse(BaseModel):
