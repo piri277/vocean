@@ -7,6 +7,9 @@ import 'package:miapp/core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // debugPrint sí imprime en release: se apaga para no dejar errores de red
+  // ni datos del usuario en logcat.
+  if (kReleaseMode) debugPrint = (String? message, {int? wrapWidth}) {};
   try {
     await Supabase.initialize(
       url: SupabaseConfig.url,

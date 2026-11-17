@@ -1,3 +1,4 @@
+import logging
 from datetime import date, datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import Depends, HTTPException, status
@@ -5,6 +6,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import Client
 
 from app.db.supabase import get_supabase_admin, get_user_supabase_client
+
+logger = logging.getLogger(__name__)
 
 # Esquema Bearer opcional y obligatorio
 bearer_scheme = HTTPBearer(auto_error=True)
@@ -36,12 +39,14 @@ async def get_current_user(
             "token": token,
             "metadata": user.user_metadata or {},
         }
-    except Exception as e:
-        if isinstance(e, HTTPException):
-            raise e
+    except HTTPException:
+        raise
+    except Exception:
+        # Sin el texto de la excepción: puede traer detalles internos de Supabase.
+        logger.warning("Fallo al verificar el token", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Error al verificar credenciales: {str(e)}",
+            detail="Token de autenticación inválido o expirado.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
