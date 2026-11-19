@@ -67,15 +67,16 @@ class HomePage extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(_tabs.length, (index) {
                 final tab = _tabs[index];
                 final isSelected = index == currentIndex;
-                return _buildNavItem(
-                  tab: tab,
-                  isSelected: isSelected,
-                  onTap: () =>
-                      ref.read(homeNavigationProvider.notifier).state = index,
+                return Expanded(
+                  child: _buildNavItem(
+                    tab: tab,
+                    isSelected: isSelected,
+                    onTap: () =>
+                        ref.read(homeNavigationProvider.notifier).state = index,
+                  ),
                 );
               }),
             ),
@@ -96,7 +97,8 @@ class HomePage extends ConsumerWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? _lightTealBg : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
@@ -106,12 +108,16 @@ class HomePage extends ConsumerWidget {
           children: [
             Icon(tab.icon, size: 24, color: isSelected ? _darkTeal : _grey),
             const SizedBox(height: 4),
-            Text(
-              tab.label,
-              style: GoogleFonts.nunito(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? _darkTeal : _grey,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                tab.label,
+                maxLines: 1,
+                style: GoogleFonts.nunito(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? _darkTeal : _grey,
+                ),
               ),
             ),
           ],

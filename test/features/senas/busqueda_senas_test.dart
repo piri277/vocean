@@ -4,7 +4,10 @@ import 'package:miapp/features/senas/views/widgets/icono_categoria.dart';
 void main() {
   test('la búsqueda ignora mayúsculas y tildes', () {
     expect(normalizarBusqueda('  Número Ú '), 'numero u');
-    expect(normalizarBusqueda('Número').contains(normalizarBusqueda('nume')), isTrue);
+    expect(
+      normalizarBusqueda('Número').contains(normalizarBusqueda('nume')),
+      isTrue,
+    );
   });
 
   test('imagen de seña según su id', () {

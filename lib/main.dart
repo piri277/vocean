@@ -37,6 +37,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       routerConfig: appRouter,
+      // Respeta la letra grande del sistema, pero hasta 1.3x para que el
+      // diseño no se rompa en teléfonos con la letra al máximo.
+      builder: (context, child) =>
+          MediaQuery.withClampedTextScaling(maxScaleFactor: 1.3, child: child!),
     );
   }
 }

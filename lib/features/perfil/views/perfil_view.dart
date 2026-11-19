@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:miapp/core/router/route_names.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/core/widgets/cuadricula_dos.dart';
 import 'package:miapp/core/widgets/dialogo_app.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
@@ -448,17 +449,7 @@ class _Estadisticas extends StatelessWidget {
         color: AppTheme.lightTeal,
       ),
     ];
-    return GridView(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        mainAxisExtent: 142,
-      ),
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: tarjetas,
-    );
+    return CuadriculaDos(children: tarjetas);
   }
 }
 
@@ -528,17 +519,24 @@ class _Contador extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            valor,
-            style: GoogleFonts.nunito(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              valor,
+              style: GoogleFonts.nunito(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
             ),
           ),
-          Text(
-            label,
-            style: GoogleFonts.nunito(fontSize: 12, color: AppTheme.grey),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              style: GoogleFonts.nunito(fontSize: 12, color: AppTheme.grey),
+            ),
           ),
         ],
       ),
@@ -890,7 +888,7 @@ class _StatCard extends StatelessWidget {
             ),
             child: icon,
           ),
-          const Spacer(),
+          const SizedBox(height: 14),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -903,11 +901,14 @@ class _StatCard extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              maxLines: 1,
+              style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+            ),
           ),
         ],
       ),

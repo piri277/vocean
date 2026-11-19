@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miapp/core/theme/app_theme.dart';
+import 'package:miapp/core/widgets/cuadricula_dos.dart';
 import 'package:miapp/features/senas/views/widgets/icono_categoria.dart';
 import 'package:miapp/core/widgets/encabezado_pantalla.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
@@ -132,16 +133,7 @@ class DiccionarioView extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                GridView(
-                  // Alto fijo al contenido: sin hueco vacío en la tarjeta.
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    mainAxisExtent: 176,
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                CuadriculaDos(
                   children: [
                     for (final entry in categorias.entries)
                       CategoriaTile(
@@ -188,17 +180,24 @@ class _ResumenProgreso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            valor,
-            style: TextStyle(
-              color: color,
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              valor,
+              style: TextStyle(
+                color: color,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
-          Text(
-            etiqueta,
-            style: const TextStyle(color: AppTheme.grey, fontSize: 12),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              etiqueta,
+              maxLines: 1,
+              style: const TextStyle(color: AppTheme.grey, fontSize: 12),
+            ),
           ),
         ],
       ),
@@ -296,20 +295,25 @@ class CategoriaTile extends StatelessWidget {
                   ),
                 ],
               ),
-              const Spacer(),
-              Text(
-                categoria,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppTheme.darkTeal,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w900,
+              const SizedBox(height: 14),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  categoria,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    color: AppTheme.darkTeal,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 '$dominadas de $total dominadas',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: AppTheme.grey, fontSize: 12),
               ),
               const SizedBox(height: 10),

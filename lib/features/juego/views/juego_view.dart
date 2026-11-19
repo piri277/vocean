@@ -206,21 +206,24 @@ class _JuegoViewState extends ConsumerState<JuegoView> {
   List<Widget> _menu() {
     return [
       _titulo('Elige el modo'),
-      Row(
-        children: [
-          for (final c in _Categoria.values) ...[
-            if (c != _Categoria.values.first) const SizedBox(width: 10),
-            Expanded(
-              child: _ModoTile(
-                icono: _iconoCategoria[c]!,
-                titulo: _etiquetaCategoria[c]!,
-                detalle: _detalleCategoria[c]!,
-                seleccionado: _categoria == c,
-                onTap: () => setState(() => _categoria = c),
+      IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final c in _Categoria.values) ...[
+              if (c != _Categoria.values.first) const SizedBox(width: 10),
+              Expanded(
+                child: _ModoTile(
+                  icono: _iconoCategoria[c]!,
+                  titulo: _etiquetaCategoria[c]!,
+                  detalle: _detalleCategoria[c]!,
+                  seleccionado: _categoria == c,
+                  onTap: () => setState(() => _categoria = c),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
       const SizedBox(height: 24),
       _titulo('Dificultad'),
@@ -474,7 +477,6 @@ class _ModoTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
-          height: 150,
           padding: const EdgeInsets.all(12),
           decoration: _decoracionCard.copyWith(
             color: seleccionado ? AppTheme.darkTeal : AppTheme.cardBg,
@@ -514,13 +516,18 @@ class _ModoTile extends StatelessWidget {
                     ),
                 ],
               ),
-              const Spacer(),
-              Text(
-                titulo,
-                style: TextStyle(
-                  color: frente,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
+              const SizedBox(height: 14),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  titulo,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: frente,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
               const SizedBox(height: 2),

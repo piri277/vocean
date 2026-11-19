@@ -70,19 +70,22 @@ class EncabezadoPantalla extends StatelessWidget {
                           color: _crema.withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(
-                          etiqueta,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _crema,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            etiqueta,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              color: _crema,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 12),
                     ?pildora,
                   ],
                 ),
