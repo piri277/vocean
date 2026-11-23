@@ -164,6 +164,23 @@ void main() {
       );
     });
 
+    test('0: índice, medio y anular tocan el pulgar', () {
+      const ext = [0.3, 0.4, 0.4, 0.4, 0.4];
+      const cont = [0.9, 0.9, 0.8, 0.3];
+      expect(clasificador.desdeExtensiones(ext, contactos: cont)?.sena, 0);
+      expect(
+        clasificador.desdeExtensiones(ext, contactos: cont, solo: 0)?.sena,
+        0,
+      );
+      expect(
+        clasificador.desdeExtensiones(
+          ext,
+          contactos: const [0.9, 0.2, 0.2, 0.2],
+        ),
+        isNull,
+      );
+    });
+
     test('sin tres dedos extendidos el contacto no basta', () {
       expect(
         clasificador
@@ -295,10 +312,10 @@ void main() {
       expect(r.confirmada, isTrue);
     });
 
-    test('confianza bajo el umbral no cuenta', () {
+    test('confianza bajo el umbral no confirma, pero queda en analizando', () {
       final r = alimentar(10, const ClasificacionSena(1, 0.6));
-      expect(r.estado, EstadoReconocimiento.noReconocida);
-      expect(r.sena, isNull);
+      expect(r.estado, EstadoReconocimiento.analizando);
+      expect(r.sena, 1);
     });
 
     test('sin mano termina en sinMano', () {

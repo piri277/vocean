@@ -298,6 +298,30 @@ class _PracticaViewState extends ConsumerState<PracticaView>
 
                     const SizedBox(height: 12),
 
+                    // Modo captura para calibrar con manos reales.
+                    if (kDebugMode &&
+                        state.reconociendo &&
+                        widget.senaId != null)
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: FilledButton.tonalIcon(
+                            onPressed: state.muestrasRestantes > 0
+                                ? null
+                                : () => ref
+                                      .read(practicaProvider.notifier)
+                                      .grabarMuestras(widget.senaId!),
+                            icon: const Icon(Icons.fiber_manual_record_rounded),
+                            label: Text(
+                              state.muestrasRestantes > 0
+                                  ? 'Grabando… faltan ${state.muestrasRestantes}'
+                                  : 'Grabar muestras (${widget.senaId})',
+                            ),
+                          ),
+                        ),
+                      ),
+
                     if (state.isReady)
                       Align(
                         alignment: Alignment.bottomLeft,

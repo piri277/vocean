@@ -17,7 +17,8 @@ class EstabilizadorReconocimiento {
   final int ventana;
   final int framesConfirmacion;
 
-  // null = fotograma sin evidencia (sin mano, parcial o bajo el umbral).
+  // null = fotograma sin candidato (sin mano o parcial). Los que quedan bajo
+  // el umbral se guardan: no confirman, pero cuentan para `analizando`.
   final Queue<ClasificacionSena?> _frames = Queue();
   bool _hayMano = false;
   bool _parcial = false;
@@ -35,41 +36,42 @@ class EstabilizadorReconocimiento {
   }) {
     _hayMano = hayMano;
     _parcial = parcial;
-    final valida =
-        hayMano &&
-        !parcial &&
-        clasificacion != null &&
-        clasificacion.confianza >= umbralConfianza;
-    _frames.addLast(valida ? clasificacion : null);
+    _frames.addLast(hayMano && !parcial ? clasificacion : null);
     if (_frames.length > ventana) _frames.removeFirst();
 
-    final conteo = <Object, List<double>>{};
-    for (final f in _frames.whereType<ClasificacionSena>()) {
-      (conteo[f.sena] ??= []).add(f.confianza);
+    ({Object sena, List<double> conf})? mejorDe(
+      Iterable<ClasificacionSena> frames,
+    ) {
+      final conteo = <Object, List<double>>{};
+      for (final f in frames) {
+        (conteo[f.sena] ??= []).add(f.confianza);
+      }
+      if (conteo.isEmpty) return null;
+      final e = conteo.entries.reduce(
+        (a, b) => a.value.length >= b.value.length ? a : b,
+      );
+      return (sena: e.key, conf: e.value);
     }
-    final mejor = conteo.entries.isEmpty
-        ? null
-        : conteo.entries.reduce(
-            (a, b) => a.value.length >= b.value.length ? a : b,
-          );
 
-    if (mejor != null) {
-      final confianza =
-          mejor.value.reduce((a, b) => a + b) / mejor.value.length;
-      if (mejor.value.length >= framesConfirmacion) {
-        return ResultadoReconocimiento(
-          EstadoReconocimiento.confirmada,
-          sena: mejor.key,
-          confianza: confianza,
-        );
-      }
-      if (hayMano && mejor.value.length * 2 >= framesConfirmacion) {
-        return ResultadoReconocimiento(
-          EstadoReconocimiento.analizando,
-          sena: mejor.key,
-          confianza: confianza,
-        );
-      }
+    double media(List<double> c) => c.reduce((a, b) => a + b) / c.length;
+    final todos = _frames.whereType<ClasificacionSena>();
+    final fuerte = mejorDe(todos.where((f) => f.confianza >= umbralConfianza));
+    if (fuerte != null && fuerte.conf.length >= framesConfirmacion) {
+      return ResultadoReconocimiento(
+        EstadoReconocimiento.confirmada,
+        sena: fuerte.sena,
+        confianza: media(fuerte.conf),
+      );
+    }
+    final cualquiera = mejorDe(todos);
+    if (hayMano &&
+        cualquiera != null &&
+        cualquiera.conf.length * 2 >= framesConfirmacion) {
+      return ResultadoReconocimiento(
+        EstadoReconocimiento.analizando,
+        sena: cualquiera.sena,
+        confianza: media(cualquiera.conf),
+      );
     }
     if (!_hayMano) {
       return const ResultadoReconocimiento(EstadoReconocimiento.sinMano);

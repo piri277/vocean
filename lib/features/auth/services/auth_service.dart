@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Wrapper delgado sobre Supabase Auth. No guarda estado propio: la fuente
@@ -27,6 +28,24 @@ class AuthService {
     required String contrasena,
   }) {
     return _client.auth.signInWithPassword(email: correo, password: contrasena);
+  }
+
+  /// Esquema de deep link al que Supabase devuelve tras el login de Google.
+  /// Debe estar en Auth > URL Configuration > Redirect URLs del dashboard.
+  static const redirectMovil = 'com.example.miapp://login-callback';
+
+  /// Abre el login de Google en el navegador. Sirve para entrar y para
+  /// registrarse: si la cuenta no existe, Supabase la crea (y el trigger
+  /// crea la fila en public.usuario). La sesión llega luego por
+  /// [cambiosDeSesion] cuando la app recibe el deep link.
+  Future<bool> iniciarConGoogle() {
+    return _client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: kIsWeb ? null : redirectMovil,
+      authScreenLaunchMode: kIsWeb
+          ? LaunchMode.platformDefault
+          : LaunchMode.externalApplication,
+    );
   }
 
   /// Cambia la contraseña del usuario con sesión activa.

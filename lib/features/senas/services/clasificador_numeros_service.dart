@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:miapp/features/senas/models/landmark_model.dart';
 import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 
-/// Clasifica los números estáticos 1-9 de LSC a partir de los 21 landmarks.
+/// Clasifica los números estáticos 0-9 de LSC a partir de los 21 landmarks.
 ///
 /// Usa solo distancias y ángulos entre puntos, así que no depende de la
 /// rotación, del tamaño de la mano ni de qué mano es. Los rangos de las rampas
@@ -14,7 +14,7 @@ class ClasificadorNumeros {
   // Orden de dedos: pulgar, índice, medio, anular, meñique.
   // El 3 acepta dos variantes: índice-medio-anular (especificación pedida) y
   // pulgar-índice-medio (descripción de assets/data/senas.json).
-  // shortcut: 0 y 10 pendientes; falta verificar fuentes LSC y el movimiento del 10.
+  // shortcut: 10 pendiente; lleva movimiento.
   static const _esperados = <int, List<List<bool>>>{
     1: [
       [false, true, false, false, false],
@@ -40,6 +40,7 @@ class ClasificadorNumeros {
 
   /// Números que el clasificador sabe reconocer.
   static Iterable<int> get numerosSoportados => [
+    0,
     ..._esperados.keys,
     ..._contactos.keys,
   ];
@@ -119,7 +120,7 @@ class ClasificadorNumeros {
 
   /// Exige que cada rasgo esté del lado correcto de 0.5; la confianza es la
   /// media de coincidencia, así un dedo dudoso no anula al resto. Sin
-  /// [contactos] no se evalúan 6-9. Con [solo] se puntúa únicamente ese número,
+  /// [contactos] no se evalúan 0 ni 6-9. Con [solo] se puntúa únicamente ese número,
   /// así una seña parecida (3 con el pulgar en el meñique frente a 6) no le
   /// gana a la que se practica.
   ClasificacionSena? desdeExtensiones(
@@ -134,6 +135,8 @@ class ClasificadorNumeros {
             e.key,
             [for (var i = 0; i < 5; i++) patron[i] ? ext[i] : 1 - ext[i]],
           ),
+      // 0: como la O, índice, medio y anular tocan la punta del pulgar.
+      if (contactos.length == 4) (0, contactos.sublist(0, 3)),
       if (contactos.length == 4)
         for (final e in _contactos.entries)
           (

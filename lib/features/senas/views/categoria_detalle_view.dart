@@ -174,7 +174,10 @@ class _CategoriaDetalleViewState extends ConsumerState<CategoriaDetalleView> {
                         sena: sena,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => SenaDetalleView(senaId: sena.id),
+                            builder: (_) => SenaDetalleView(
+                              senaId: sena.id,
+                              ids: [for (final s in visibles) s.id],
+                            ),
                           ),
                         ),
                       ),

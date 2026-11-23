@@ -7,6 +7,7 @@ import 'package:miapp/core/widgets/dialogo_app.dart';
 import 'package:miapp/core/router/route_names.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
+import 'package:miapp/features/auth/widgets/acceso_google.dart';
 import 'package:miapp/features/auth/widgets/ocean_background.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -235,6 +236,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   ),
                           ),
                         ),
+                        const SizedBox(height: 24),
+                        const AccesoGoogle(etiqueta: 'o regístrate con'),
                         const SizedBox(height: 16),
                         Center(
                           child: TextButton(

@@ -16,6 +16,7 @@ class PracticaState {
     this.errorMessage,
     this.resultado = ResultadoReconocimiento.detenido,
     this.extensiones = const [],
+    this.muestrasRestantes = 0,
   });
 
   final PracticaStatus status;
@@ -29,6 +30,9 @@ class PracticaState {
   /// Puntajes 0-1 del último fotograma, para calibrar: extensión por dedo
   /// (pulgar a meñique) seguida del contacto pulgar-punta (índice a meñique).
   final List<double> extensiones;
+
+  /// Muestras que faltan por grabar en el modo captura (solo debug).
+  final int muestrasRestantes;
 
   bool get isLoading =>
       status == PracticaStatus.initial || status == PracticaStatus.loading;
@@ -47,6 +51,7 @@ class PracticaState {
     String? errorMessage,
     ResultadoReconocimiento? resultado,
     List<double>? extensiones,
+    int? muestrasRestantes,
   }) {
     return PracticaState(
       status: status ?? this.status,
@@ -57,6 +62,7 @@ class PracticaState {
       errorMessage: errorMessage ?? this.errorMessage,
       resultado: resultado ?? this.resultado,
       extensiones: extensiones ?? this.extensiones,
+      muestrasRestantes: muestrasRestantes ?? this.muestrasRestantes,
     );
   }
 }

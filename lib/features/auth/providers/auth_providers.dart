@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import 'package:miapp/features/auth/providers/auth_state.dart';
@@ -18,14 +20,50 @@ final authServiceProvider = Provider<AuthService>((ref) {
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(this._authService) : super(const AuthInitial()) {
     _initSession();
+    // El login con Google termina fuera de la app: la sesión llega por aquí.
+    _sub = _authService.cambiosDeSesion.listen(
+      (cambio) {
+        final user = cambio.session?.user;
+        if (cambio.event == sb.AuthChangeEvent.signedIn && user != null) {
+          state = AuthAuthenticated(email: user.email ?? '');
+        }
+      },
+      onError: (Object e) {
+        state = AuthError(
+          e is sb.AuthException ? e.message : 'Error al iniciar sesión: $e',
+        );
+      },
+    );
   }
 
   final AuthService _authService;
+  late final StreamSubscription<sb.AuthState> _sub;
 
   void _initSession() {
     final user = _authService.usuarioActual;
     if (user != null && user.email != null) {
       state = AuthAuthenticated(email: user.email!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+
+  Future<void> loginConGoogle() async {
+    state = const AuthLoading();
+    try {
+      final abierto = await _authService.iniciarConGoogle();
+      // Si el usuario cierra el navegador no hay evento: se libera el botón.
+      state = abierto
+          ? const AuthInitial()
+          : const AuthError('No se pudo abrir el inicio de sesión de Google.');
+    } on sb.AuthException catch (e) {
+      state = AuthError(e.message);
+    } catch (e) {
+      state = AuthError('Error al iniciar sesión con Google: $e');
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:miapp/core/widgets/dialogo_app.dart';
 import 'package:miapp/core/router/route_names.dart';
 import 'package:miapp/features/auth/providers/auth_providers.dart';
 import 'package:miapp/features/auth/providers/auth_state.dart';
+import 'package:miapp/features/auth/widgets/acceso_google.dart';
 import 'package:miapp/features/auth/widgets/ocean_background.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -281,59 +282,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Divider(color: AppTheme.ringBackground),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0,
-                              ),
-                              child: Text(
-                                'o continuar con',
-                                style:
-                                    textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.grey,
-                                      fontSize: 14,
-                                    ) ??
-                                    TextStyle(
-                                      color: AppTheme.grey,
-                                      fontSize: 14,
-                                    ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Divider(color: AppTheme.ringBackground),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildSocialButton(
-                              iconWidget: const Icon(
-                                Icons.facebook_rounded,
-                                color: Color(0xFF1877F2),
-                                size: 28,
-                              ),
-                              onPressed: () {},
-                            ),
-                            const SizedBox(width: 12),
-                            _buildSocialButton(
-                              iconWidget: Text(
-                                'G',
-                                style: GoogleFonts.poppins(
-                                  color: const Color.fromARGB(255, 244, 78, 66),
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              onPressed: () {},
-                            ),
-                          ],
-                        ),
+                        const AccesoGoogle(),
                         const SizedBox(height: 18),
                         Center(
                           child: TextButton(
@@ -378,23 +327,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialButton({
-    required Widget iconWidget,
-    required VoidCallback onPressed,
-  }) {
-    return Expanded(
-      child: Material(
-        color: AppTheme.bgCream,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(16),
-          child: SizedBox(height: 60, child: Center(child: iconWidget)),
         ),
       ),
     );

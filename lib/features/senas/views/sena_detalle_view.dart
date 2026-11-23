@@ -5,15 +5,19 @@ import 'package:miapp/features/senas/views/widgets/icono_categoria.dart';
 import 'package:miapp/features/perfil/views/racha_celebracion.dart';
 import 'package:miapp/features/senas/models/estado_aprendizaje_model.dart';
 import 'package:miapp/features/senas/providers/senas_provider.dart';
+import 'package:miapp/features/senas/services/clasificador_knn_service.dart';
 import 'package:miapp/features/senas/services/clasificador_letras_service.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 import 'package:miapp/features/senas/views/practica_view.dart';
 import 'package:miapp/features/senas/views/widgets/sena_chip.dart';
 
 class SenaDetalleView extends ConsumerWidget {
-  const SenaDetalleView({super.key, required this.senaId});
+  const SenaDetalleView({super.key, required this.senaId, this.ids = const []});
 
   final String senaId;
+
+  /// Señas de la lista de origen, en orden, para ir a la anterior o siguiente.
+  final List<String> ids;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,9 +34,11 @@ class SenaDetalleView extends ConsumerWidget {
     final Object? objetivo =
         ClasificadorNumeros.numerosSoportados.contains(numero)
         ? numero
-        : ClasificadorLetras.letrasSoportadas.contains(letra)
+        : ClasificadorLetras.letrasSoportadas.contains(letra) ||
+              ClasificadorKnn.letras.contains(letra)
         ? letra
         : null;
+    // Sin clasificador (señas con movimiento o sin muestras) no hay cámara.
     final practicable = objetivo != null;
 
     Future<void> practicar() async {
@@ -56,6 +62,18 @@ class SenaDetalleView extends ConsumerWidget {
         );
       }
     }
+
+    final pos = ids.indexOf(senaId);
+    final anterior = pos > 0 ? ids[pos - 1] : null;
+    final siguiente = pos >= 0 && pos < ids.length - 1 ? ids[pos + 1] : null;
+
+    // Reemplaza la pantalla para que «atrás» siga volviendo a la lista.
+    void irA(String id) => Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SenaDetalleView(senaId: id, ids: ids),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: AppTheme.bgCream,
@@ -184,19 +202,46 @@ class SenaDetalleView extends ConsumerWidget {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: ElevatedButton.icon(
-            onPressed: practicable ? practicar : null,
-            icon: const Icon(Icons.videocam_outlined),
-            label: Text(
-              practicable ? 'Practicar con la cámara' : 'Práctica próximamente',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-            ),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+          child: Row(
+            children: [
+              if (ids.length > 1) ...[
+                _BotonFlecha(
+                  icono: Icons.chevron_left_rounded,
+                  tooltip: 'Seña anterior',
+                  onPressed: anterior == null ? null : () => irA(anterior),
+                ),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: practicable ? practicar : null,
+                  icon: const Icon(Icons.videocam_outlined),
+                  label: Text(
+                    practicable
+                        ? 'Practicar con la cámara'
+                        : 'Práctica próximamente',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              if (ids.length > 1) ...[
+                const SizedBox(width: 10),
+                _BotonFlecha(
+                  icono: Icons.chevron_right_rounded,
+                  tooltip: 'Seña siguiente',
+                  onPressed: siguiente == null ? null : () => irA(siguiente),
+                ),
+              ],
+            ],
           ),
         ),
       ),
@@ -346,6 +391,36 @@ class _Tarjeta extends StatelessWidget {
           const SizedBox(height: 12),
           child,
         ],
+      ),
+    );
+  }
+}
+
+/// Botón cuadrado de flecha para pasar a la seña anterior o siguiente.
+class _BotonFlecha extends StatelessWidget {
+  const _BotonFlecha({
+    required this.icono,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icono;
+  final String tooltip;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton.filled(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icono, size: 30),
+      style: IconButton.styleFrom(
+        backgroundColor: AppTheme.lightTeal,
+        foregroundColor: AppTheme.darkTeal,
+        disabledBackgroundColor: AppTheme.ringBackground.withValues(alpha: 0.5),
+        disabledForegroundColor: AppTheme.grey.withValues(alpha: 0.5),
+        minimumSize: const Size(56, 56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
     );
   }

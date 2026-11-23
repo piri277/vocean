@@ -21,9 +21,8 @@ typedef _Rasgos = ({
 /// números (V y 2, W y 6), así que no se elige la mejor
 /// entre todas. Las definiciones salen de assets/data/senas.json y los rangos
 /// son valores iniciales: deben calibrarse con muestras reales.
-// shortcut: d, e, f, k, m, n, q, t, u y x no se reconocían con manos reales y
-// quedan como próximamente; g, h, j, s, z y ñ sin implementar (j y z llevan
-// movimiento). Reintentar tras calibrar con muestras reales.
+// shortcut: las letras con muestras van por ClasificadorKnn y estas reglas ya
+// no se usan al practicar; quedan por si faltan muestras. j, z y ñ llevan movimiento y no se reconocen.
 class ClasificadorLetras {
   const ClasificadorLetras();
 

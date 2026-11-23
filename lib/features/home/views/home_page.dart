@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:miapp/core/theme/app_theme.dart';
 
 import 'package:miapp/features/home/providers/home_navigation_provider.dart';
+import 'package:miapp/features/home/views/bienvenida_animada.dart';
+import 'package:miapp/features/senas/providers/senas_provider.dart';
 import 'package:miapp/features/senas/views/diccionario_view.dart';
 import 'package:miapp/features/cultura/views/cultura_view.dart';
 import 'package:miapp/features/juego/views/juego_view.dart';
@@ -14,10 +16,32 @@ import 'package:miapp/features/perfil/views/racha_celebracion.dart';
 /// Cascarón (shell) principal de la aplicación.
 ///
 /// Orquesta la navegación entre los cuatro features principales
-/// mediante una barra de navegación personalizada. Solo la pestaña activa
-/// está montada. La práctica se abre desde el detalle de cada seña.
-class HomePage extends ConsumerWidget {
+/// mediante una barra de navegación personalizada o deslizando el dedo
+/// entre pestañas. La práctica se abre desde el detalle de cada seña.
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  late final _paginas = PageController(
+    initialPage: ref.read(homeNavigationProvider),
+  );
+
+  /// Animación de entrada: tapa la app mientras cargan señas y perfil.
+  bool _bienvenida = true;
+  late final Future<void> _carga = Future.wait([
+    ref.read(senasFutureProvider.future),
+    ref.read(usuarioFutureProvider.future),
+  ]).timeout(const Duration(seconds: 8));
+
+  @override
+  void dispose() {
+    _paginas.dispose();
+    super.dispose();
+  }
 
   // ── Paleta consistente con auth ──────────────────────────────
   static const _darkTeal = Color(0xFF1B4532);
@@ -33,7 +57,7 @@ class HomePage extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final currentIndex = ref.watch(homeNavigationProvider);
     // Al cargar el perfil, avisa si la racha se perdió desde la última visita.
     ref.listen(usuarioProvider, (anterior, usuario) {
@@ -42,15 +66,29 @@ class HomePage extends ConsumerWidget {
       }
     });
 
-    final body = switch (currentIndex) {
-      0 => const DiccionarioView(),
-      1 => const JuegoView(),
-      2 => const CulturaView(),
-      _ => const PerfilView(),
-    };
-
     return Scaffold(
-      body: body,
+      body: Stack(
+        children: [
+          PageView(
+            controller: _paginas,
+            onPageChanged: (i) =>
+                ref.read(homeNavigationProvider.notifier).state = i,
+            children: const [
+              DiccionarioView(),
+              JuegoView(),
+              CulturaView(),
+              PerfilView(),
+            ],
+          ),
+          if (_bienvenida)
+            Positioned.fill(
+              child: BienvenidaAnimada(
+                cargando: _carga,
+                alTerminar: () => setState(() => _bienvenida = false),
+              ),
+            ),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppTheme.cardBg,
@@ -74,8 +112,11 @@ class HomePage extends ConsumerWidget {
                   child: _buildNavItem(
                     tab: tab,
                     isSelected: isSelected,
-                    onTap: () =>
-                        ref.read(homeNavigationProvider.notifier).state = index,
+                    onTap: () => _paginas.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                    ),
                   ),
                 );
               }),

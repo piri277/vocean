@@ -10,6 +10,9 @@ class _AuthServiceFalso implements AuthService {
 
   @override
   get usuarioActual => null;
+
+  @override
+  get cambiosDeSesion => const Stream.empty();
 }
 
 void main() {
