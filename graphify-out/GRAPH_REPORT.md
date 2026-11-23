@@ -1,9 +1,9 @@
-# Graph Report - miapp  (2026-11-22)
+# Graph Report - miapp  (2026-11-23)
 
 ## Corpus Check
-- 155 files · ~857,781 words
+- 155 files · ~861,974 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 59 file(s) not represented in the graph (top: .xml 10, (none) 9, .xcconfig 8)
+- Unclassified: 60 file(s) not represented in the graph (top: (none) 10, .xml 10, .xcconfig 8)
 
 ## Summary
 - 1778 nodes · 2707 edges · 107 communities (89 shown, 18 thin omitted)
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5aa635a1`
+- Built from commit: `4479bb9c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

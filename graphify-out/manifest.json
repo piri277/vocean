@@ -324,9 +324,9 @@
     "semantic_hash": "f3182592c5ffff616126a3c40fd2201c"
   },
   "lib/features/senas/providers/practica_provider.dart": {
-    "mtime": 1795392691.1443508,
-    "seen": 1795392736.0120604,
-    "ast_hash": "10713e1b8b90e20b3f260d5de5d01317",
+    "mtime": 1795471022.370581,
+    "seen": 1795471068.522853,
+    "ast_hash": "cab72f9a0f998bb5b4923c2762000e2f",
     "semantic_hash": ""
   },
   "lib/features/senas/providers/practica_state.dart": {
@@ -1350,9 +1350,9 @@
     "semantic_hash": ""
   },
   "promo/vocean_promo.mp4": {
-    "mtime": 1795403237.4699445,
-    "seen": 1795403555.4610932,
-    "ast_hash": "9822ca97cb0a2cea75d3e7497bfaee64",
+    "mtime": 1795406942.3553493,
+    "seen": 1795471068.5352046,
+    "ast_hash": "a619a5b93941c68265c91c4f96ccba0c",
     "semantic_hash": ""
   },
   "test/features/senas/practica_provider_test.dart": {
@@ -1376,25 +1376,25 @@
   "assets/data/muestras_senas.json": {
     "mtime": 1795392664.8508933,
     "seen": 1795392736.0118477,
-    "ast_hash": "e22313cb0d35358b5564ec559ef98855",
+    "ast_hash": "",
     "semantic_hash": ""
   },
   "lib/features/senas/services/clasificador_knn_service.dart": {
-    "mtime": 1795392690.816407,
-    "seen": 1795392736.0120754,
-    "ast_hash": "d35a8841e2448d079567a4151c4966a3",
+    "mtime": 1795471021.5438128,
+    "seen": 1795471068.5232723,
+    "ast_hash": "9f620c8e480a4dbbfa6c91d6414f0991",
     "semantic_hash": ""
   },
   "test/features/senas/clasificador_knn_test.dart": {
-    "mtime": 1795392711.6966853,
-    "seen": 1795392736.0121617,
-    "ast_hash": "01eb54c4022708854a4fdc7cf9df7d99",
+    "mtime": 1795471022.6785867,
+    "seen": 1795471068.5263562,
+    "ast_hash": "8b149913b921ba4cb65b501abf6d78db",
     "semantic_hash": ""
   },
   "tool/generar_muestras.py": {
-    "mtime": 1795392663.7616813,
-    "seen": 1795392736.0121763,
-    "ast_hash": "bc5efdc6a030b5be19b3acd5d692fdbf",
+    "mtime": 1795470862.5586035,
+    "seen": 1795471068.5268273,
+    "ast_hash": "977e98bfd6f316220e438b5784f0a375",
     "semantic_hash": ""
   },
   "muestras_log_viejo.txt": {
@@ -1509,6 +1509,30 @@
     "mtime": 1795401193.5443273,
     "seen": 1795401371.243648,
     "ast_hash": "037e50f1c47c1bfb612af6e144d8c87f",
+    "semantic_hash": ""
+  },
+  "landing/index.html": {
+    "mtime": 1795410911.888539,
+    "seen": 1795471068.5286794,
+    "ast_hash": "68126c7908dc62e030f4103c34dfbb97",
+    "semantic_hash": ""
+  },
+  "landing/icono.png": {
+    "mtime": 1795410886.277292,
+    "seen": 1795471068.5339634,
+    "ast_hash": "77e92ac4dcae3576e08cc33e21f5002e",
+    "semantic_hash": ""
+  },
+  "promo/ig_foto_perfil.png": {
+    "mtime": 1795407823.1602848,
+    "seen": 1795471068.534537,
+    "ast_hash": "4fb7f3a1047970df22751f92c5b1268e",
+    "semantic_hash": ""
+  },
+  "landing/promo.mp4": {
+    "mtime": 1795410886.2962923,
+    "seen": 1795471068.535201,
+    "ast_hash": "a619a5b93941c68265c91c4f96ccba0c",
     "semantic_hash": ""
   }
 }

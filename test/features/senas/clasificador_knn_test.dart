@@ -46,13 +46,7 @@ void main() {
     ]) {
       final m = muestras.firstWhere((m) => m['s'] == letra) as Map;
       final aspecto = (m['a'] as num).toDouble();
-      final frontal = m['f'] as bool;
-      final r = knn.puntuar(
-        letra,
-        puntos(m),
-        aspecto: aspecto,
-        frontal: frontal,
-      );
+      final r = knn.puntuar(letra, puntos(m), aspecto: aspecto);
       expect(r?.sena, letra, reason: letra);
       expect(r!.confianza, greaterThanOrEqualTo(0.8));
       final otra = letra.startsWith('num-')
@@ -60,12 +54,7 @@ void main() {
                 ? 'num-2'
                 : 'num-1'
           : ClasificadorKnn.letras.firstWhere((l) => l != letra);
-      final ajena = knn.puntuar(
-        otra,
-        puntos(m),
-        aspecto: aspecto,
-        frontal: frontal,
-      );
+      final ajena = knn.puntuar(otra, puntos(m), aspecto: aspecto);
       expect(ajena == null || ajena.confianza < 0.75, isTrue, reason: letra);
     }
   });

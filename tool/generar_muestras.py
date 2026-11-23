@@ -17,9 +17,9 @@ import math
 import sys
 from collections import defaultdict
 
-# Letras de las que solo vale la última tanda: las C anteriores tenían la mano
-# mal puesta y aceptaban casi cualquier pose.
-SOLO_ULTIMA = {'c'}
+# Letras de las que solo valen las tandas desde este número (0 = la primera):
+# las dos primeras C tenían la mano mal puesta y aceptaban casi cualquier pose.
+DESDE_TANDA = {'c': 2}
 
 # Umbral por letra = A × percentil 90 de la distancia de cada muestra a su
 # vecina más cercana de la misma letra y cámara, acotado a [MIN, MAX].
@@ -77,8 +77,7 @@ def leer(ruta):
             por_letra[f['s']] += 1
         previa, n = clave, n + 1
         f['_t'], f['_n'] = tanda, n_letra
-    return [f for f in filas
-            if f['s'] not in SOLO_ULTIMA or f['_n'] == por_letra[f['s']] - 1]
+    return [f for f in filas if f['_n'] >= DESDE_TANDA.get(f['s'], 0)]
 
 
 def main():

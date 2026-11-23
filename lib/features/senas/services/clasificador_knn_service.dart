@@ -6,7 +6,7 @@ import 'package:miapp/features/senas/models/reconocimiento_sena_model.dart';
 import 'package:miapp/features/senas/services/clasificador_numeros_service.dart';
 
 typedef _Punto = ({double x, double y, double z});
-typedef _Plantilla = ({String sena, bool frontal, List<double> rasgos});
+typedef _Plantilla = ({String sena, List<double> rasgos});
 
 /// Verifica letras comparando la mano con muestras reales grabadas
 /// (assets/data/muestras_senas.json, generado por tool/generar_muestras.py)
@@ -41,7 +41,6 @@ class ClasificadorKnn {
       for (final m in datos['muestras'] as List)
         (
           sena: m['s'] as String,
-          frontal: m['f'] as bool,
           rasgos: _normalizar(
             rasgos(
               _puntos(m['p'] as List),
@@ -80,13 +79,13 @@ class ClasificadorKnn {
   /// Confianza de que la mano forma [letra], o null si no se parece.
   ///
   /// De 0.8 (3 de 5 vecinos) a 1.0 (5 de 5) si la forma; [confianzaCerca] si
-  /// solo se le acerca. Compara con las muestras de la misma cámara
-  /// ([frontal]) cuando la letra las tiene: cada cámara ve la mano distinto.
+  /// solo se le acerca. Compara con las muestras de ambas cámaras: los rasgos
+  /// son ángulos y distancias, iguales en espejo, y así las muestras de otras
+  /// manos grabadas con la trasera también sirven en la frontal.
   ClasificacionSena? puntuar(
     String letra,
     List<Landmark> puntos, {
     double aspecto = 1,
-    bool frontal = true,
   }) {
     final umbral = _umbrales[letra];
     if (umbral == null ||
@@ -98,11 +97,8 @@ class ClasificadorKnn {
     // y se robarían los votos.
     final numero = letra.startsWith('num-');
     final tipo = _plantillas.where((p) => p.sena.startsWith('num-') == numero);
-    final camara = tipo.any((p) => p.sena == letra && p.frontal == frontal)
-        ? tipo.where((p) => p.frontal == frontal)
-        : tipo;
     final r = _normalizar(rasgos(puntos, aspecto: aspecto), _escala);
-    final cercanas = [for (final p in camara) (p: p, d: _dist(r, p.rasgos))]
+    final cercanas = [for (final p in tipo) (p: p, d: _dist(r, p.rasgos))]
       ..sort((a, b) => a.d.compareTo(b.d));
     final votos = cercanas.take(_k).where((c) => c.p.sena == letra).length;
     final propia = cercanas.where((c) => c.p.sena == letra).firstOrNull;

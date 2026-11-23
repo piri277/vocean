@@ -126,24 +126,14 @@ class PracticaNotifier extends StateNotifier<PracticaState> {
             // Con muestras grabadas mandan ellas: las reglas, hechas sin
             // manos reales, toleraban dedos fuera de lugar.
             final String letra when ClasificadorKnn.letras.contains(letra) =>
-              _knn?.puntuar(
-                letra,
-                mano!,
-                aspecto: aspecto,
-                frontal: state.isFrontCamera,
-              ),
+              _knn?.puntuar(letra, mano!, aspecto: aspecto),
             final String letra => _letras.puntuar(
               letra,
               mano!,
               aspecto: aspecto,
             ),
             final int n when ClasificadorKnn.numeros.contains(n) => switch (_knn
-                ?.puntuar(
-                  'num-$n',
-                  mano!,
-                  aspecto: aspecto,
-                  frontal: state.isFrontCamera,
-                )) {
+                ?.puntuar('num-$n', mano!, aspecto: aspecto)) {
               final c? => ClasificacionSena(n, c.confianza),
               null => null,
             },
