@@ -32,13 +32,23 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   /// Animación de entrada: tapa la app mientras cargan señas y perfil.
   bool _bienvenida = true;
-  late final Future<void> _carga = Future.wait([
-    ref.read(senasFutureProvider.future),
-    ref.read(usuarioFutureProvider.future),
-  ]).timeout(const Duration(seconds: 8));
+  // Empieza junto con la animación: así la pantalla de carga no pasa de
+  // ~5 s contando la salida (0,45 s).
+  late final Future<void> _carga = _esperarDatos().timeout(
+    const Duration(milliseconds: 4500),
+  );
+  final _escuchas = <ProviderSubscription<Object?>>[];
+
+  Future<void> _esperarDatos() => esperarCargas(ref, [
+    senasFutureProvider,
+    usuarioFutureProvider,
+  ], _escuchas);
 
   @override
   void dispose() {
+    for (final e in _escuchas) {
+      e.close();
+    }
     _paginas.dispose();
     super.dispose();
   }
@@ -89,41 +99,47 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.cardBg,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              children: List.generate(_tabs.length, (index) {
-                final tab = _tabs[index];
-                final isSelected = index == currentIndex;
-                return Expanded(
-                  child: _buildNavItem(
-                    tab: tab,
-                    isSelected: isSelected,
-                    onTap: () => _paginas.animateToPage(
-                      index,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                    ),
+      // Sin barra mientras está la pantalla de carga.
+      bottomNavigationBar: _bienvenida
+          ? null
+          : Container(
+              decoration: BoxDecoration(
+                color: AppTheme.cardBg,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
                   ),
-                );
-              }),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: List.generate(_tabs.length, (index) {
+                      final tab = _tabs[index];
+                      final isSelected = index == currentIndex;
+                      return Expanded(
+                        child: _buildNavItem(
+                          tab: tab,
+                          isSelected: isSelected,
+                          onTap: () => _paginas.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 

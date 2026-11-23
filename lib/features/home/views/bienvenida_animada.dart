@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:miapp/core/theme/app_theme.dart';
 
@@ -41,8 +44,7 @@ class _BienvenidaAnimadaState extends State<BienvenidaAnimada>
   }
 
   Future<void> _arrancar() async {
-    // Si la carga falla, la pantalla de cada pestaña muestra su propio error.
-    final carga = widget.cargando.catchError((_) {});
+    final carga = _esperarCarga();
     await _entrada.forward();
     if (!mounted) return;
     setState(() => _esperando = true);
@@ -50,6 +52,16 @@ class _BienvenidaAnimadaState extends State<BienvenidaAnimada>
     if (!mounted) return;
     await _salida.forward();
     if (mounted) widget.alTerminar();
+  }
+
+  /// Espera la carga sin lanzar: si falla o tarda demasiado, la pantalla de
+  /// cada pestaña muestra su propio error.
+  Future<void> _esperarCarga() async {
+    try {
+      await widget.cargando;
+    } catch (e) {
+      debugPrint('La carga inicial falló o tardó demasiado: $e');
+    }
   }
 
   @override
@@ -198,4 +210,30 @@ class _Letra extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Termina cuando ninguno de los [providers] está cargando. Mira su estado,
+/// no un solo Future: si una carga se reinicia, sigue esperando. Las
+/// suscripciones quedan en [escuchas] para cerrarlas en `dispose`.
+Future<void> esperarCargas(
+  WidgetRef ref,
+  List<ProviderListenable<AsyncValue<Object?>>> providers,
+  List<ProviderSubscription<Object?>> escuchas,
+) {
+  final listo = Completer<void>();
+  void revisar() {
+    if (listo.isCompleted) return;
+    if (providers.every((p) => !ref.read(p).isLoading)) listo.complete();
+  }
+
+  for (final p in providers) {
+    escuchas.add(
+      ref.listenManual<AsyncValue<Object?>>(
+        p,
+        (_, _) => revisar(),
+        fireImmediately: true,
+      ),
+    );
+  }
+  return listo.future;
 }

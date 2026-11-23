@@ -3,14 +3,17 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 
-from app.api.dependencies import get_current_user, get_db
+from app.api.dependencies import get_current_user, get_db, get_db_escritura, validar_fecha_local
+from app.api.routes.usuarios import campos_practica, guardar_dia_practica
 from app.schemas.partida import (
     PartidaCreate,
     PartidaResponse,
     PreguntaResponse,
+    ResultadoReto,
+    ResultadoSupervivencia,
     VictoriaJuego,
 )
-from app.core.progreso import xp_juego
+from app.core.progreso import xp_juego, xp_reto
 from app.schemas.usuario import UsuarioResponse
 
 router = APIRouter(prefix="/partidas", tags=["Partidas y Juego"])
@@ -21,6 +24,7 @@ async def registrar_partida(
     datos: PartidaCreate,
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
 ):
     """
     Registra una partida finalizada del juego "¿Qué está diciendo?",
@@ -39,7 +43,7 @@ async def registrar_partida(
         "xp_ganado": 0,
     }
 
-    partida_res = db.table("partida").insert(partida_payload).execute()
+    partida_res = admin.table("partida").insert(partida_payload).execute()
     if not partida_res.data:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -60,7 +64,7 @@ async def registrar_partida(
             "fue_correcta": preg.fue_correcta,
         }
 
-        preg_res = db.table("pregunta").insert(pregunta_payload).execute()
+        preg_res = admin.table("pregunta").insert(pregunta_payload).execute()
         if preg_res.data:
             p_obj = preg_res.data[0]
             preguntas_creadas.append(
@@ -76,7 +80,7 @@ async def registrar_partida(
 
             # Insertar secuencia de señas si aplica
             for orden, s_id in enumerate(preg.secuencia_senas_ids):
-                db.table("pregunta_sena").insert({
+                admin.table("pregunta_sena").insert({
                     "pregunta_id": p_obj["id"],
                     "sena_id": s_id,
                     "orden": orden,
@@ -86,7 +90,7 @@ async def registrar_partida(
     usuario_res = db.table("usuario").select("*").eq("id", user_id).execute()
     if usuario_res.data:
         usr = usuario_res.data[0]
-        db.table("usuario").update({
+        admin.table("usuario").update({
             "partidas_jugadas": usr.get("partidas_jugadas", 0) + 1,
             "racha_global_maxima": max(usr.get("racha_global_maxima", 0), datos.racha_maxima),
             "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
@@ -159,6 +163,7 @@ async def registrar_resultado_juego(
     datos: VictoriaJuego,
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
 ):
     """
     Da XP por ganar una partida, solo la primera vez en cada modo y dificultad.
@@ -178,12 +183,13 @@ async def registrar_resultado_juego(
         )
     usr = usuario_res.data[0]
     ganados = usr.get("juegos_ganados") or []
-    clave = f"{datos.modo}:{datos.dificultad.value}"
+    modo = f"inverso-{datos.modo}" if datos.inverso else datos.modo
+    clave = f"{modo}:{datos.dificultad.value}"
     xp = xp_juego(datos.dificultad.value, datos.aciertos, datos.total, clave in ganados)
     if not xp:
         return usr
 
-    res = db.table("usuario").update({
+    res = admin.table("usuario").update({
         "xp_total": (usr.get("xp_total") or 0) + xp,
         "juegos_ganados": [*ganados, clave],
         "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
@@ -192,5 +198,86 @@ async def registrar_resultado_juego(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="No se pudo registrar la XP del juego.",
+        )
+    return res.data[0]
+
+
+@router.post("/reto-diario", response_model=UsuarioResponse)
+async def registrar_reto_diario(
+    datos: ResultadoReto,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
+):
+    """
+    Registra el reto diario: una sola partida por día. Si hubo algún acierto
+    cuenta como práctica (racha); si se ganó, da XP. Devuelve el perfil.
+    """
+    validar_fecha_local(datos.fecha)
+    if datos.aciertos > datos.total:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Los aciertos no pueden superar el total de preguntas.",
+        )
+    user_id = current_user["id"]
+    usuario_res = db.table("usuario").select("*").eq("id", user_id).execute()
+    if not usuario_res.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Perfil de usuario no encontrado.",
+        )
+    usr = usuario_res.data[0]
+    ganados = usr.get("juegos_ganados") or []
+    clave = f"reto:{datos.fecha.isoformat()}"
+    if clave in ganados:
+        return usr
+
+    # Solo se guarda el reto del día: los de días anteriores ya no sirven.
+    campos: Dict[str, Any] = {
+        "xp_total": (usr.get("xp_total") or 0) + xp_reto(datos.aciertos, datos.total),
+        "juegos_ganados": [g for g in ganados if not g.startswith("reto:")] + [clave],
+        "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
+    }
+    if datos.aciertos > 0:
+        campos.update(campos_practica(usr, datos.fecha))
+
+    res = admin.table("usuario").update(campos).eq("id", user_id).execute()
+    if not res.data:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo registrar el reto diario.",
+        )
+    if datos.aciertos > 0:
+        guardar_dia_practica(admin, user_id, datos.fecha)
+    return res.data[0]
+
+
+@router.post("/supervivencia", response_model=UsuarioResponse)
+async def registrar_supervivencia(
+    datos: ResultadoSupervivencia,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
+):
+    """Guarda el récord de supervivencia si la partida lo supera. Devuelve el perfil."""
+    user_id = current_user["id"]
+    usuario_res = db.table("usuario").select("*").eq("id", user_id).execute()
+    if not usuario_res.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Perfil de usuario no encontrado.",
+        )
+    usr = usuario_res.data[0]
+    if datos.aciertos <= (usr.get("record_supervivencia") or 0):
+        return usr
+
+    res = admin.table("usuario").update({
+        "record_supervivencia": datos.aciertos,
+        "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
+    }).eq("id", user_id).execute()
+    if not res.data:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No se pudo guardar el récord.",
         )
     return res.data[0]

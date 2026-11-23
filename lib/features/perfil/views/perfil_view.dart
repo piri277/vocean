@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miapp/features/cultura/data/contenido_lsc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -407,6 +408,9 @@ class _Estadisticas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final racha = usuario.rachaVigente(DateTime.now());
+    final temasHechos = temasLsc
+        .where((t) => usuario.juegosGanados.contains('cultura:${t.id}'))
+        .length;
     final tarjetas = [
       _StatCard(
         icon: const Icon(
@@ -446,6 +450,26 @@ class _Estadisticas extends StatelessWidget {
         ),
         label: 'Partidas',
         value: '${usuario.partidasJugadas}',
+        color: AppTheme.lightTeal,
+      ),
+      _StatCard(
+        icon: const Icon(
+          Icons.favorite_border_rounded,
+          size: 26,
+          color: AppTheme.tomato,
+        ),
+        label: 'Récord supervivencia',
+        value: '${usuario.recordSupervivencia}',
+        color: const Color(0xFFF5D3C6),
+      ),
+      _StatCard(
+        icon: const Icon(
+          Icons.auto_stories_outlined,
+          size: 26,
+          color: AppTheme.darkTeal,
+        ),
+        label: 'Temas de cultura',
+        value: '$temasHechos/${temasLsc.length}',
         color: AppTheme.lightTeal,
       ),
     ];

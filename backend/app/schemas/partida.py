@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import List, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -59,5 +59,20 @@ class VictoriaJuego(BaseModel):
     """Resultado de una partida del juego, para dar XP si se ganó."""
     modo: Literal["palabras", "numeros", "mezcla"]
     dificultad: DificultadNivel
+    # «¿Cuál es la seña?»: da su propia XP, aparte del modo normal.
+    inverso: bool = False
     aciertos: int = Field(ge=0)
     total: int = Field(ge=1, le=50)
+
+
+class ResultadoSupervivencia(BaseModel):
+    """Aciertos de una partida de supervivencia, para el récord del perfil."""
+    aciertos: int = Field(ge=0, le=1000)
+
+
+class ResultadoReto(BaseModel):
+    """Resultado del reto diario: una partida por día y por usuario."""
+    # Fecha local del dispositivo, como en la práctica.
+    fecha: date
+    aciertos: int = Field(ge=0)
+    total: int = Field(ge=1, le=10)

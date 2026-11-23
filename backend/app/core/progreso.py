@@ -39,6 +39,29 @@ XP_JUEGO = {"facil": 20, "medio": 30, "dificil": 40, "extremo": 50}
 ACIERTOS_PARA_GANAR = 0.75
 
 
+# Reto diario: XP por ganarlo, una vez al día (5 preguntas, ganar con 4).
+XP_RETO = 25
+
+
+def xp_reto(aciertos: int, total: int) -> int:
+    """XP del reto diario si se ganó; que sea el primero del día lo revisa la ruta."""
+    if total <= 0 or aciertos / total < ACIERTOS_PARA_GANAR:
+        return 0
+    return XP_RETO
+
+
+# Cultura: XP por aprobar el quiz de cada tema, una sola vez por tema.
+XP_CULTURA = 15
+TEMAS_CULTURA = ("linea-tiempo", "derechos", "lengua", "comunidad", "comunicacion", "curiosos", "mitos")
+
+
+def xp_cultura(aciertos: int, total: int, ya_ganado: bool) -> int:
+    """XP de un quiz de cultura: la primera vez que se aprueba ese tema."""
+    if ya_ganado or total <= 0 or aciertos / total < ACIERTOS_PARA_GANAR:
+        return 0
+    return XP_CULTURA
+
+
 def xp_practica(dias_previos: int, dias: int, recien_dominada: bool) -> int:
     """XP de una práctica: solo si sumó un día nuevo a la seña."""
     if dias <= dias_previos:

@@ -1,13 +1,9 @@
 {
   "1": "iOS/macOS App Delegates",
   "3": "Linux GTK Runner",
-  "7": "Backend Config & Seed",
   "9": "Project Dependencies & CI",
-  "10": "Backend Progress API",
   "12": "Learning State Model",
-  "13": "Backend Matches API",
   "16": "Win32 Window Lifecycle",
-  "17": "Backend Senas API",
   "31": "Windows Plugin Registry",
   "33": "Windows Flutter Window",
   "34": "App Theme",

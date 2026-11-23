@@ -74,6 +74,17 @@ def get_db(current_user: Dict[str, Any] = Depends(get_current_user)) -> Client:
 
 
 
+def get_db_escritura(current_user: Dict[str, Any] = Depends(get_current_user)) -> Client:
+    """
+    Cliente con la llave de servidor para escribir. Los roles `anon` y
+    `authenticated` no pueden escribir en las tablas (ver
+    migracion_solo_backend_escribe.sql): así nadie cambia su XP o su racha
+    llamando a Supabase directo con su token. Cada escritura debe filtrar por
+    `current_user["id"]`. Pide sesión para que no se use sin autenticar.
+    """
+    return get_supabase_admin()
+
+
 def validar_fecha_local(fecha: date) -> None:
     """
     Rechaza una fecha local del dispositivo que no puede ser "hoy" en ninguna

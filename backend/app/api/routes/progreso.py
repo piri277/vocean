@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 
-from app.api.dependencies import get_current_user, get_db, validar_fecha_local
+from app.api.dependencies import get_current_user, get_db, get_db_escritura, validar_fecha_local
 from app.core.progreso import siguiente_progreso, xp_practica
 from app.schemas.estado_aprendizaje import (
     EstadoAprendizajeResponse,
@@ -66,6 +66,7 @@ async def actualizar_progreso_sena(
     datos: EstadoAprendizajeUpdate,
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
 ):
     """
     Crea o actualiza (upsert) el progreso de aprendizaje de una seña para el usuario autenticado.
@@ -95,7 +96,7 @@ async def actualizar_progreso_sena(
     }
 
     try:
-        response = db.table("estado_aprendizaje").upsert(registro).execute()
+        response = admin.table("estado_aprendizaje").upsert(registro).execute()
         if not response.data:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -116,6 +117,7 @@ async def registrar_practica_sena(
     datos: PracticaSenaRegistro,
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
 ):
     """
     Registra una práctica de la seña: abrirla la pasa a 'en_practica' y cada
@@ -168,7 +170,7 @@ async def registrar_practica_sena(
         "actualizado_en": ahora,
     }
 
-    response = db.table("estado_aprendizaje").upsert(registro, on_conflict="usuario_id,sena_id").execute()
+    response = admin.table("estado_aprendizaje").upsert(registro, on_conflict="usuario_id,sena_id").execute()
     if not response.data:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -179,7 +181,7 @@ async def registrar_practica_sena(
     if xp:
         usuario_res = db.table("usuario").select("xp_total").eq("id", user_id).execute()
         if usuario_res.data:
-            db.table("usuario").update({
+            admin.table("usuario").update({
                 "xp_total": (usuario_res.data[0].get("xp_total") or 0) + xp,
             }).eq("id", user_id).execute()
     return response.data[0]

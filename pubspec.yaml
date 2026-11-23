@@ -73,6 +73,7 @@ flutter:
     - assets/numeros/
     - assets/juego/
     - assets/audio/numeros/
+    - assets/audio/efectos/
     - assets/juego/
     - assets/juego/
   # To add assets to your application, add an assets section, like this:

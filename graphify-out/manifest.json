@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "backend/app/api/dependencies.py": {
-    "mtime": 1794874705.613651,
-    "seen": 1795377053.1286988,
-    "ast_hash": "609895d798f77a198a495ff747fc6f16",
+    "mtime": 1795400488.7275178,
+    "seen": 1795400583.995342,
+    "ast_hash": "ddf9603433357d47e8f7f1113705688a",
     "semantic_hash": ""
   },
   "backend/app/api/routes/health.py": {
@@ -48,15 +48,15 @@
     "semantic_hash": "9a027977c367fb71e811b01e68ada323"
   },
   "backend/app/api/routes/partidas.py": {
-    "mtime": 1794874693.7714453,
-    "seen": 1795377053.1287055,
-    "ast_hash": "cf622abc7c50c35bcf4b8d8efd479cf3",
+    "mtime": 1795400453.8579967,
+    "seen": 1795400583.995439,
+    "ast_hash": "db3de4d6c2300f054593c027206e68e6",
     "semantic_hash": ""
   },
   "backend/app/api/routes/progreso.py": {
-    "mtime": 1794540980.9974012,
-    "seen": 1795377053.1287084,
-    "ast_hash": "8ed7df9d539be17da49cb35e772f690d",
+    "mtime": 1795400453.8577921,
+    "seen": 1795400583.995442,
+    "ast_hash": "28797ea715e8afbfa0da95d0d3dee31f",
     "semantic_hash": ""
   },
   "backend/app/api/routes/senas.py": {
@@ -66,9 +66,9 @@
     "semantic_hash": "3feb3689c1010d2b2b72f8f957bcbcc3"
   },
   "backend/app/api/routes/usuarios.py": {
-    "mtime": 1794884269.6828592,
-    "seen": 1795377053.1287146,
-    "ast_hash": "63ff171f49364980526fd2010754cea1",
+    "mtime": 1795400495.7318075,
+    "seen": 1795400583.9955251,
+    "ast_hash": "b886edd04cabbcca709818718b931bac",
     "semantic_hash": ""
   },
   "backend/app/core/config.py": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "backend/app/main.py": {
-    "mtime": 1794874663.839483,
-    "seen": 1795377053.128732,
-    "ast_hash": "425a4f6109877d6284c1e025a25891b3",
+    "mtime": 1795394803.766291,
+    "seen": 1795395085.5575697,
+    "ast_hash": "dac8f8d089ab9a1fe0709a9fff8f0c34",
     "semantic_hash": ""
   },
   "backend/app/schemas/estado_aprendizaje.py": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "backend/app/schemas/partida.py": {
-    "mtime": 1794874693.7713068,
-    "seen": 1795377053.1287372,
-    "ast_hash": "a215880e10cd595e1e03db81fa0949ee",
+    "mtime": 1795399687.569233,
+    "seen": 1795399783.224594,
+    "ast_hash": "c73f57525502abf8a7dcd9029edc31c1",
     "semantic_hash": ""
   },
   "backend/app/schemas/sena.py": {
@@ -114,9 +114,9 @@
     "semantic_hash": "3322f6405f9a6e597c1c811c23b24fbb"
   },
   "backend/app/schemas/usuario.py": {
-    "mtime": 1794874678.7022297,
-    "seen": 1795377053.1287432,
-    "ast_hash": "b868564af290b77cab049eaeef95a845",
+    "mtime": 1795399687.568897,
+    "seen": 1795399783.2246742,
+    "ast_hash": "fd1a6c39958a35e82f96f19446572a90",
     "semantic_hash": ""
   },
   "backend/run.sh": {
@@ -240,9 +240,9 @@
     "semantic_hash": "f0ce47ad27ee8e837c2efbaa8d8c475f"
   },
   "lib/features/home/views/home_page.dart": {
-    "mtime": 1795393075.8499818,
-    "seen": 1795393114.733607,
-    "ast_hash": "5b8053b57069c08de3b22c1309cbd20a",
+    "mtime": 1795403957.4686997,
+    "seen": 1795404019.8303468,
+    "ast_hash": "d86a9a8a53d858356b04b60247adc6af",
     "semantic_hash": ""
   },
   "lib/features/juego/models/dificultad_model.dart": {
@@ -264,15 +264,15 @@
     "semantic_hash": "5bda6406ced1e688ef2c64c027d0394c"
   },
   "lib/features/juego/views/juego_view.dart": {
-    "mtime": 1794966581.614423,
-    "seen": 1795377053.1288757,
-    "ast_hash": "59296a46a2a65f261a82d9d0ae8e543b",
+    "mtime": 1795401262.0520432,
+    "seen": 1795401371.2305028,
+    "ast_hash": "50b9a373a28703ba3eead500a61ff637",
     "semantic_hash": ""
   },
   "lib/features/perfil/models/usuario_model.dart": {
-    "mtime": 1794884289.3524206,
-    "seen": 1795377053.128878,
-    "ast_hash": "b1d66fbe025e6c6d0b0d3d659ea099af",
+    "mtime": 1795399707.5454595,
+    "seen": 1795399783.228129,
+    "ast_hash": "52a0761c114e3c70d7a64d2e4eb8b7c5",
     "semantic_hash": ""
   },
   "lib/features/perfil/providers/perfil_provider.dart": {
@@ -282,15 +282,15 @@
     "semantic_hash": ""
   },
   "lib/features/perfil/services/usuario_repository.dart": {
-    "mtime": 1794884289.3528454,
-    "seen": 1795377053.128886,
-    "ast_hash": "527213144e574bbeff412c4d97dcf7a6",
+    "mtime": 1795399707.5475812,
+    "seen": 1795399783.2282248,
+    "ast_hash": "d280e2c6e981a684caa9ed08d2d02fb0",
     "semantic_hash": ""
   },
   "lib/features/perfil/views/perfil_view.dart": {
-    "mtime": 1794966581.0562375,
-    "seen": 1795377053.1288886,
-    "ast_hash": "f76eccfb1f5c03d102cf230b8ec31e14",
+    "mtime": 1795399728.6363008,
+    "seen": 1795399783.2282274,
+    "ast_hash": "df3e64a8de5c1c50cf8d101b15a4da99",
     "semantic_hash": ""
   },
   "lib/features/senas/models/estado_aprendizaje_model.dart": {
@@ -564,9 +564,9 @@
     "semantic_hash": "4a7ee5abaeb58f510f03bbeada874cee"
   },
   "README.md": {
-    "mtime": 1795376948.564666,
-    "seen": 1795377053.1292114,
-    "ast_hash": "39a37dacc342865028f52cae073baf7f",
+    "mtime": 1795400578.7031827,
+    "seen": 1795400584.0062356,
+    "ast_hash": "87536a75ab10c9ba0bf3fef9a9a2a7c1",
     "semantic_hash": ""
   },
   "analysis_options.yaml": {
@@ -612,9 +612,9 @@
     "semantic_hash": "6d75431dc21756981b53a7494c836311"
   },
   "pubspec.yaml": {
-    "mtime": 1794888285.497491,
-    "seen": 1795377053.1292582,
-    "ast_hash": "348493f102170fe4716e8c07a1fe72c5",
+    "mtime": 1795401193.5907996,
+    "seen": 1795401371.2378168,
+    "ast_hash": "37c5dbd8d7dd978076df578385a74761",
     "semantic_hash": ""
   },
   "web/index.html": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "backend/app/core/progreso.py": {
-    "mtime": 1794540962.470964,
-    "seen": 1795377053.1287203,
-    "ast_hash": "d7f7875f4b80477c00840ac745f0aeca",
+    "mtime": 1795398489.2182434,
+    "seen": 1795399188.2969754,
+    "ast_hash": "092b2dcf39ea676964be2ff5a2d420e2",
     "semantic_hash": ""
   },
   "backend/app/core/racha.py": {
@@ -678,15 +678,15 @@
     "semantic_hash": ""
   },
   "backend/tests/test_seguridad.py": {
-    "mtime": 1794876378.3726585,
-    "seen": 1795377053.1287563,
-    "ast_hash": "5454ca642b212f67527748258d255e91",
+    "mtime": 1795400508.1679065,
+    "seen": 1795400583.9967299,
+    "ast_hash": "7a18df7f5c27787f729dea948e754955",
     "semantic_hash": ""
   },
   "backend/tests/test_xp.py": {
-    "mtime": 1794540962.471964,
-    "seen": 1795377053.1287584,
-    "ast_hash": "ea54ca283f819c407b45d02621236844",
+    "mtime": 1795394803.793897,
+    "seen": 1795395085.5575995,
+    "ast_hash": "5f8f8126a9fbcaf9bb116c223a82abf2",
     "semantic_hash": ""
   },
   "lib/core/network/api_client.dart": {
@@ -726,21 +726,21 @@
     "semantic_hash": ""
   },
   "lib/features/cultura/data/contenido_lsc.dart": {
-    "mtime": 1794883882.478325,
-    "seen": 1795377053.1288433,
-    "ast_hash": "2d05b66641220fd51f5fabaaab4eee2c",
+    "mtime": 1795398135.7201207,
+    "seen": 1795398198.3279805,
+    "ast_hash": "5ce6d9ac8c8e9a9a37c05924dcb69417",
     "semantic_hash": ""
   },
   "lib/features/cultura/views/cultura_view.dart": {
-    "mtime": 1794887675.0362072,
-    "seen": 1795377053.1288462,
-    "ast_hash": "6885ba95bf4ff8329b319aa029b0353c",
+    "mtime": 1795398068.84743,
+    "seen": 1795398123.5459547,
+    "ast_hash": "79d16fce976e67a288805f69d6f0b09d",
     "semantic_hash": ""
   },
   "lib/features/perfil/services/api_usuario_repository.dart": {
-    "mtime": 1794884289.3531108,
-    "seen": 1795377053.1288834,
-    "ast_hash": "6f1c2d782c61f7d9661548af4ff0d4e3",
+    "mtime": 1795399707.5472414,
+    "seen": 1795399783.2282217,
+    "ast_hash": "7ae2dfd6fb72cafeadfe4a0559ea55ba",
     "semantic_hash": ""
   },
   "lib/features/perfil/views/racha_calendario.dart": {
@@ -1350,9 +1350,9 @@
     "semantic_hash": ""
   },
   "promo/vocean_promo.mp4": {
-    "mtime": 1794971432.8774953,
-    "seen": 1795377053.1294527,
-    "ast_hash": "32874243e7fa332226df5c3523be5cd6",
+    "mtime": 1795403237.4699445,
+    "seen": 1795403555.4610932,
+    "ast_hash": "9822ca97cb0a2cea75d3e7497bfaee64",
     "semantic_hash": ""
   },
   "test/features/senas/practica_provider_test.dart": {
@@ -1404,15 +1404,111 @@
     "semantic_hash": ""
   },
   "lib/features/home/views/bienvenida_animada.dart": {
-    "mtime": 1795393075.8379817,
-    "seen": 1795393114.7336025,
-    "ast_hash": "e4d5037b7a4c710bc61241b56963ae77",
+    "mtime": 1795403957.4702246,
+    "seen": 1795404019.8303428,
+    "ast_hash": "3080fff0ce5e57831efe18d4a756570b",
     "semantic_hash": ""
   },
   "test/features/home/bienvenida_animada_test.dart": {
-    "mtime": 1795393090.050225,
-    "seen": 1795393114.733742,
-    "ast_hash": "b7ffd020636625806015741f2d964b5b",
+    "mtime": 1795403963.2961943,
+    "seen": 1795404019.835225,
+    "ast_hash": "d6e1fe7d6b20e5d079daca77eaa14872",
+    "semantic_hash": ""
+  },
+  "backend/app/api/routes/cultura.py": {
+    "mtime": 1795400453.8560622,
+    "seen": 1795400583.9953477,
+    "ast_hash": "ad1102c343f89fd093a962f8b765320d",
+    "semantic_hash": ""
+  },
+  "lib/features/cultura/views/historias_tema.dart": {
+    "mtime": 1795398031.1760352,
+    "seen": 1795398123.5459578,
+    "ast_hash": "29f440b669a3f6145b862ee0acd04782",
+    "semantic_hash": ""
+  },
+  "lib/features/cultura/views/quiz_cultura.dart": {
+    "mtime": 1795401293.2204647,
+    "seen": 1795401371.2299216,
+    "ast_hash": "2a46b20857f2d1670450f64af7dda3cb",
+    "semantic_hash": ""
+  },
+  "test/features/cultura/cultura_test.dart": {
+    "mtime": 1795398714.9182227,
+    "seen": 1795399188.297346,
+    "ast_hash": "9559cb0c56abaecda84d81cbf042868d",
+    "semantic_hash": ""
+  },
+  "test/features/cultura/flash_cards_test.dart": {
+    "mtime": 1795397603.3155477,
+    "seen": 1795397628.3239577,
+    "ast_hash": "72f3eb18fa6500111ded6e3f403f6029",
+    "semantic_hash": ""
+  },
+  "backend/tests/test_reto_diario.py": {
+    "mtime": 1795400467.8119283,
+    "seen": 1795400583.9967265,
+    "ast_hash": "8c208692f549c0cb1f3a26cc66a50411",
+    "semantic_hash": ""
+  },
+  "lib/features/juego/logic/banco_juego.dart": {
+    "mtime": 1795398674.9571462,
+    "seen": 1795399188.29717,
+    "ast_hash": "f5f800306f1cf6abdcd02eb8caa6d705",
+    "semantic_hash": ""
+  },
+  "test/features/juego/banco_juego_test.dart": {
+    "mtime": 1795398714.9251323,
+    "seen": 1795399188.2973585,
+    "ast_hash": "5aef94d4c78e5b96aef406ff5a11b6eb",
+    "semantic_hash": ""
+  },
+  "test/features/juego/juego_view_test.dart": {
+    "mtime": 1795399766.5169244,
+    "seen": 1795399783.2321465,
+    "ast_hash": "f868e71ae6bbe8748496c41af11b8415",
+    "semantic_hash": ""
+  },
+  "test/helpers/repo_usuario_falso.dart": {
+    "mtime": 1795399728.6344376,
+    "seen": 1795399783.2327192,
+    "ast_hash": "6cb7a51c777eb33d3890f022bbd624c9",
+    "semantic_hash": ""
+  },
+  "lib/core/widgets/retroalimentacion.dart": {
+    "mtime": 1795403573.5428486,
+    "seen": 1795404019.8291771,
+    "ast_hash": "de2a3d8294a146c5d5ad70b302bf1011",
+    "semantic_hash": ""
+  },
+  "test/core/retroalimentacion_test.dart": {
+    "mtime": 1795403518.882669,
+    "seen": 1795403555.4514127,
+    "ast_hash": "39d385092f048fc3580732fb88489626",
+    "semantic_hash": ""
+  },
+  "assets/audio/efectos/acierto.wav": {
+    "mtime": 1795401193.1543345,
+    "seen": 1795401371.2436373,
+    "ast_hash": "001ac5a4a359c88aab5a245e32317336",
+    "semantic_hash": ""
+  },
+  "assets/audio/efectos/error.wav": {
+    "mtime": 1795401193.188334,
+    "seen": 1795401371.2436416,
+    "ast_hash": "62917deb676499b1f6ea4ed1e6584d5a",
+    "semantic_hash": ""
+  },
+  "assets/audio/efectos/final.wav": {
+    "mtime": 1795401193.4773285,
+    "seen": 1795401371.2436452,
+    "ast_hash": "6e1c86b8134457046a6eea9c8ac84c75",
+    "semantic_hash": ""
+  },
+  "assets/audio/efectos/final_suave.wav": {
+    "mtime": 1795401193.5443273,
+    "seen": 1795401371.243648,
+    "ast_hash": "037e50f1c47c1bfb612af6e144d8c87f",
     "semantic_hash": ""
   }
 }

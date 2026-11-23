@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -25,6 +25,9 @@ class UsuarioResponse(BaseModel):
     # Con default para no romper antes de aplicar migracion_racha_dias.sql.
     racha_dias: int = 0
     ultima_practica: Optional[date] = None
+    # Claves "modo:dificultad" y "cultura:tema" ya premiadas con XP.
+    juegos_ganados: Optional[List[str]] = None
+    record_supervivencia: int = 0
     fecha_ultima_actividad: datetime
     creado_en: datetime
 

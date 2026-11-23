@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from supabase import Client
 
-from app.api.dependencies import get_current_user, get_db, validar_fecha_local
+from app.api.dependencies import get_current_user, get_db, get_db_escritura, validar_fecha_local
 from app.db.supabase import get_supabase_admin
 from app.core.racha import calcular_racha
 from app.schemas.usuario import PracticaRegistro, UsuarioResponse, UsuarioUpdate
@@ -52,6 +52,7 @@ async def actualizar_perfil(
     datos: UsuarioUpdate,
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
 ):
     """
     Actualiza el nombre del usuario. Las estadísticas solo cambian por las
@@ -73,7 +74,7 @@ async def actualizar_perfil(
     if datos.nombre is not None:
         update_data["nombre"] = datos.nombre.strip()
 
-    res = db.table("usuario").update(update_data).eq("id", user_id).execute()
+    res = admin.table("usuario").update(update_data).eq("id", user_id).execute()
 
     if not res.data:
         raise HTTPException(
@@ -90,6 +91,7 @@ async def registrar_practica(
     datos: PracticaRegistro,
     current_user: Dict[str, Any] = Depends(get_current_user),
     db: Client = Depends(get_db),
+    admin: Client = Depends(get_db_escritura),
 ):
     """
     Registra que el usuario practicó en `datos.fecha` y actualiza su racha de días.
@@ -105,18 +107,9 @@ async def registrar_practica(
             detail="Perfil de usuario no encontrado.",
         )
 
-    actual = actual_res.data[0]
-    ultima = actual.get("ultima_practica")
-    ultima_fecha = datetime.fromisoformat(ultima).date() if ultima else None
-    racha = calcular_racha(actual.get("racha_dias") or 0, ultima_fecha, datos.fecha)
-
     res = (
-        db.table("usuario")
-        .update({
-            "racha_dias": racha,
-            "ultima_practica": max(datos.fecha, ultima_fecha or datos.fecha).isoformat(),
-            "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
-        })
+        admin.table("usuario")
+        .update(campos_practica(actual_res.data[0], datos.fecha))
         .eq("id", user_id)
         .execute()
     )
@@ -125,17 +118,31 @@ async def registrar_practica(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error al registrar la práctica.",
         )
+    guardar_dia_practica(admin, user_id, datos.fecha)
+    return res.data[0]
 
-    # Historial para el calendario; si la tabla aún no existe, la racha sigue igual.
+
+def campos_practica(usuario: Dict[str, Any], fecha: date) -> Dict[str, Any]:
+    """Columnas de `usuario` a actualizar al practicar en `fecha` (racha incluida)."""
+    ultima = usuario.get("ultima_practica")
+    ultima_fecha = datetime.fromisoformat(ultima).date() if ultima else None
+    return {
+        "racha_dias": calcular_racha(usuario.get("racha_dias") or 0, ultima_fecha, fecha),
+        "ultima_practica": max(fecha, ultima_fecha or fecha).isoformat(),
+        "fecha_ultima_actividad": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def guardar_dia_practica(db: Client, user_id: str, fecha: date) -> None:
+    """Historial para el calendario; si la tabla aún no existe, la racha sigue igual."""
     try:
         db.table("practica_dia").upsert(
-            {"usuario_id": user_id, "fecha": datos.fecha.isoformat()},
+            {"usuario_id": user_id, "fecha": fecha.isoformat()},
             on_conflict="usuario_id,fecha",
             ignore_duplicates=True,
         ).execute()
     except Exception as e:
         print(f"No se pudo guardar el día en practica_dia: {e}")
-    return res.data[0]
 
 
 @router.get("/me/dias-practica", response_model=List[date])

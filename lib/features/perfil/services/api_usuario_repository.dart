@@ -35,10 +35,48 @@ class ApiUsuarioRepository implements UsuarioRepository {
     required String dificultad,
     required int aciertos,
     required int total,
+    bool inverso = false,
   }) async {
     final json = await _api.post('/partidas/resultado', {
       'modo': modo,
       'dificultad': dificultad,
+      'inverso': inverso,
+      'aciertos': aciertos,
+      'total': total,
+    });
+    return _desdeJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Usuario> registrarSupervivencia(int aciertos) async {
+    final json = await _api.post('/partidas/supervivencia', {
+      'aciertos': aciertos,
+    });
+    return _desdeJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Usuario> registrarRetoDiario({
+    required DateTime fecha,
+    required int aciertos,
+    required int total,
+  }) async {
+    final json = await _api.post('/partidas/reto-diario', {
+      'fecha': fecha.toIso8601String().substring(0, 10),
+      'aciertos': aciertos,
+      'total': total,
+    });
+    return _desdeJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<Usuario> registrarQuizCultura({
+    required String tema,
+    required int aciertos,
+    required int total,
+  }) async {
+    final json = await _api.post('/cultura/quiz', {
+      'tema': tema,
       'aciertos': aciertos,
       'total': total,
     });
@@ -76,5 +114,9 @@ class ApiUsuarioRepository implements UsuarioRepository {
     ultimaPractica: DateTime.tryParse(
       json['ultima_practica']?.toString() ?? '',
     ),
+    juegosGanados: {
+      for (final c in json['juegos_ganados'] as List<dynamic>? ?? []) '$c',
+    },
+    recordSupervivencia: (json['record_supervivencia'] as num?)?.toInt() ?? 0,
   );
 }

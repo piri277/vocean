@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health, senas, usuarios, progreso, partidas
+from app.api.routes import health, senas, usuarios, progreso, partidas, cultura
 from app.core.config import settings
 
 app = FastAPI(
@@ -27,6 +27,7 @@ app.include_router(senas.router, prefix=settings.API_V1_STR)
 app.include_router(usuarios.router, prefix=settings.API_V1_STR)
 app.include_router(progreso.router, prefix=settings.API_V1_STR)
 app.include_router(partidas.router, prefix=settings.API_V1_STR)
+app.include_router(cultura.router, prefix=settings.API_V1_STR)
 
 
 @app.get("/", tags=["Root"])

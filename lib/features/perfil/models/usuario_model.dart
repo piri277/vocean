@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:miapp/features/juego/models/resumen_partida_model.dart';
 
 /// Estado del usuario y su progreso general.
@@ -10,6 +11,8 @@ class Usuario {
     this.nombre,
     this.rachaDias = 0,
     this.ultimaPractica,
+    this.juegosGanados = const {},
+    this.recordSupervivencia = 0,
   });
 
   final int xpTotal;
@@ -21,6 +24,12 @@ class Usuario {
   /// Días seguidos practicando hasta [ultimaPractica] (fecha local, sin hora).
   final int rachaDias;
   final DateTime? ultimaPractica;
+
+  /// Claves ya premiadas con XP: "modo:dificultad" del juego y "cultura:tema".
+  final Set<String> juegosGanados;
+
+  /// Mejor cantidad de aciertos en el modo Supervivencia.
+  final int recordSupervivencia;
 
   /// Racha a mostrar [hoy]: se pierde si no se practicó ni hoy ni ayer.
   int rachaVigente(DateTime hoy) {
@@ -55,6 +64,8 @@ class Usuario {
     nombre: nombre ?? this.nombre,
     rachaDias: rachaDias ?? this.rachaDias,
     ultimaPractica: ultimaPractica ?? this.ultimaPractica,
+    juegosGanados: juegosGanados,
+    recordSupervivencia: recordSupervivencia,
   );
 
   Usuario registrarPartida(ResumenPartida resumen) => copyWith(
@@ -76,7 +87,9 @@ class Usuario {
           other.fechaUltimaActividad == fechaUltimaActividad &&
           other.nombre == nombre &&
           other.rachaDias == rachaDias &&
-          other.ultimaPractica == ultimaPractica;
+          other.ultimaPractica == ultimaPractica &&
+          setEquals(other.juegosGanados, juegosGanados) &&
+          other.recordSupervivencia == recordSupervivencia;
 
   @override
   int get hashCode => Object.hash(
@@ -87,6 +100,8 @@ class Usuario {
     nombre,
     rachaDias,
     ultimaPractica,
+    Object.hashAllUnordered(juegosGanados),
+    recordSupervivencia,
   );
 
   @override

@@ -10,8 +10,8 @@ App móvil (Android, Flutter) para aprender vocabulario básico de la **Lengua d
 |---|---|
 | **Diccionario** | Progreso general, señas por categoría (Alfabeto, Números, Saludos, Emergencias), buscador y filtros por estado. Cada seña tiene imagen de referencia e instrucciones. |
 | **Práctica** | Se abre desde el detalle de una seña. Usa la cámara, detecta la mano y compara la pose con la referencia. Al acertar un día distinto suma a la seña hacia «dominada» y a la racha. |
-| **Juego** | «¿Qué está diciendo?»: adivina la palabra o número formado por señas. Modos Palabras, Números y Mezcla; dificultades Fácil, Medio, Difícil y Extremo. |
-| **Cultura** | Historia de la comunidad sorda, datos de la LSC y un dato del día. |
+| **Juego** | Tres juegos: **Clásico** (8 rondas, dificultades Fácil a Extremo), **Supervivencia** (3 vidas, la dificultad sube cada 5 aciertos, récord guardado en el perfil) y **Reto diario** (5 preguntas iguales para todos ese día). Modos Palabras, Números y Mezcla; dos direcciones: «¿Qué está diciendo?» (señas → palabra) y «¿Cuál es la seña?» (palabra → señas). El **repaso inteligente** hace salir más las señas en práctica o que necesitan repaso. |
+| **Cultura** | Temas en formato de historias (línea de tiempo, derechos en Colombia, la lengua, comunidad sorda, cómo comunicarte, datos curiosos), cada uno con su quiz; «Mitos y realidades» (verdadero o falso) y un dato del día. Los datos legales e históricos citan su fuente. |
 | **Perfil** | Nivel y XP, racha actual con calendario, estadísticas, progreso de aprendizaje, cambio de nombre y contraseña, cerrar sesión. |
 
 ### Racha, XP y dominio
@@ -28,9 +28,12 @@ App móvil (Android, Flutter) para aprender vocabulario básico de la **Lengua d
 | Difícil | 40 |
 | Extremo | 50 |
 
+- **Reto diario:** una partida por día. Si aciertas al menos una, cuenta para la racha; con 4 de 5 ganas +25 XP.
+- **Modo inverso:** «¿Cuál es la seña?» da su propia XP por modo y dificultad, aparte del modo normal.
+- **XP por cultura:** +15 la primera vez que apruebas (75 %) el quiz de cada tema o «Mitos y realidades».
 - **Nivel:** cada 100 XP sube un nivel.
 
-Las reglas están en `backend/app/core/progreso.py` (`XP_PRACTICA`, `XP_DOMINAR`, `XP_JUEGO`, `DIAS_PARA_DOMINAR`) y `backend/app/core/racha.py`. Los valores de XP por dificultad también aparecen en `lib/features/juego/views/juego_view.dart` (`_xpDificultad`); si cambias uno, cambia el otro.
+Las reglas están en `backend/app/core/progreso.py` (`XP_PRACTICA`, `XP_DOMINAR`, `XP_JUEGO`, `XP_RETO`, `XP_CULTURA`, `TEMAS_CULTURA`, `DIAS_PARA_DOMINAR`) y `backend/app/core/racha.py`. Los valores de XP por dificultad también aparecen en `lib/features/juego/views/juego_view.dart` (`_xpDificultad`); si cambias uno, cambia el otro.
 
 ## Arquitectura
 
@@ -47,6 +50,7 @@ backend/    API FastAPI (Python)
 
 - **Autenticación y base de datos:** Supabase. La app inicia sesión directamente con Supabase Auth. Todo lo demás (progreso, racha, XP, partidas) pasa por el backend; la app nunca escribe en Postgres directamente.
 - **Token:** la app envía el JWT de la sesión en `Authorization: Bearer`. El backend lo valida con Supabase antes de cada operación.
+- **Solo el backend escribe:** los roles `anon` y `authenticated` de Supabase solo tienen `SELECT` (con RLS). El backend lee con el token del usuario y escribe con la llave de servidor (`get_db_escritura`), siempre filtrando por el id del token. Así nadie puede cambiarse la XP o la racha llamando a Supabase directamente. Ver `backend/migracion_solo_backend_escribe.sql`.
 - **Paleta:** crema `#EEE2CB` (fondo, 60 %), verde abeto `#1B4532` (principal, 30 %) y rojo tomate `#EE4129` (acentos, 10 %). Está definida en `lib/core/theme/app_theme.dart`.
 
 ### Endpoints principales (prefijo `/api`)
@@ -61,7 +65,10 @@ backend/    API FastAPI (Python)
 | GET | `/usuarios/me/dias-practica` | Días practicados (calendario) |
 | GET / PUT / POST | `/progreso/{sena_id}` · `/progreso/{sena_id}/practica` | Estado de aprendizaje de una seña y registro de práctica |
 | POST | `/partidas` | Guardar una partida |
-| POST | `/partidas/resultado` | XP por ganar el juego |
+| POST | `/partidas/resultado` | XP por ganar el juego (clásico, normal o inverso) |
+| POST | `/partidas/reto-diario` | Reto del día: racha y XP |
+| POST | `/partidas/supervivencia` | Récord de supervivencia del perfil |
+| POST | `/cultura/quiz` | XP por aprobar un quiz de Cultura |
 
 Documentación interactiva con el servidor corriendo: `http://localhost:8000/docs`.
 
@@ -85,7 +92,7 @@ SUPABASE_SECRET_KEY=<clave secreta; solo en el servidor>
 SUPABASE_JWKS_URL=<opcional>
 ```
 
-Crea las tablas y columnas de la base de datos en Supabase antes de correr el backend. Los cambios son: columnas `racha_dias`, `ultima_practica`, `juegos_ganados` en `usuario`, la tabla `practica_dia` (historial para el calendario) y las tablas del catálogo de señas.
+Crea las tablas y columnas de la base de datos en Supabase antes de correr el backend. Los cambios son: columnas `racha_dias`, `ultima_practica`, `juegos_ganados` y `record_supervivencia` (`backend/migracion_record_supervivencia.sql`) en `usuario`, la tabla `practica_dia` (historial para el calendario) y las tablas del catálogo de señas.
 
 ### App
 

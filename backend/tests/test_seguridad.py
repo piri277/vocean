@@ -63,3 +63,19 @@ class H08ErrorDeAuthNoFiltraDetalles(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class H09SoloElBackendEscribe(unittest.TestCase):
+    """Las rutas escriben con la llave de servidor; el token del usuario solo lee."""
+
+    def test_ninguna_ruta_escribe_con_el_cliente_del_usuario(self):
+        import pathlib
+        import re
+
+        rutas = pathlib.Path(__file__).resolve().parents[1] / "app" / "api" / "routes"
+        escritura = re.compile(r'\bdb\.table\("[a-z_]+"\)\s*\.(insert|update|upsert|delete)\(')
+        for archivo in rutas.glob("*.py"):
+            texto = archivo.read_text()
+            # guardar_dia_practica recibe el cliente de escritura como `db`.
+            texto = texto.split("def guardar_dia_practica")[0]
+            self.assertIsNone(escritura.search(texto), archivo.name)
