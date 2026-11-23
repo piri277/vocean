@@ -59,3 +59,6 @@ env/
 venv/
 
 android/.kotlin/
+
+# APK de la landing (se sube aparte, pesa ~58 MB)
+landing/vocean.apk

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocean — Aprende Lengua de Señas Colombiana</title>
+<meta name="description" content="Descarga Vocean para Android: aprende vocabulario de Lengua de Señas Colombiana (LSC) practicando frente a la cámara.">
+<link rel="icon" href="icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEE2CB; --card: #FAF4E8; --ink: #1B4532; --muted: #6E6758;
+    --line: #DDD0B6; --coral: #EE4129; --on-ink: #FAF4E8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Nunito, system-ui, sans-serif; line-height: 1.5; }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 20px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.3rem; letter-spacing: .02em; }
+  .brand img { width: 40px; height: 40px; border-radius: 10px; }
+
+  .hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; padding: 32px 0 64px; }
+  h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.08; margin: 0 0 16px; font-weight: 900; }
+  h1 em { font-style: normal; color: var(--coral); }
+  .lead { font-size: 1.15rem; color: var(--muted); margin: 0 0 28px; max-width: 34ch; }
+  .btn { display: inline-flex; align-items: center; gap: 12px; background: var(--ink); color: var(--on-ink); text-decoration: none;
+         padding: 16px 26px; border-radius: 16px; font-weight: 800; font-size: 1.1rem; transition: transform .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+  .btn svg { width: 24px; height: 24px; }
+  .meta { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+
+  .phone { justify-self: center; width: min(280px, 70vw); aspect-ratio: 9 / 19.5; background: #111; border-radius: 40px; padding: 10px;
+           box-shadow: 0 24px 60px rgba(27,69,50,.25); }
+  .phone video { width: 100%; height: 100%; object-fit: cover; border-radius: 30px; display: block; background: #000; }
+
+  section { padding: 56px 0; }
+  h2 { font-size: 1.9rem; font-weight: 900; margin: 0 0 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 22px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.15rem; font-weight: 800; }
+  .card p { margin: 0; color: var(--muted); }
+
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px 16px 64px; position: relative; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%;
+                        background: var(--coral); color: #fff; font-weight: 900; display: grid; place-items: center; }
+  .note { margin-top: 24px; padding: 16px 18px; border-left: 4px solid var(--coral); background: var(--card); border-radius: 0 12px 12px 0; color: var(--muted); }
+
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; text-align: center; padding-top: 8px; }
+    .lead { margin-left: auto; margin-right: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="brand"><img src="icono.png" alt="">VOCEAN</div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <h1>Aprende <em>Lengua de Señas Colombiana</em> con tu cámara</h1>
+      <p class="lead">Mira cómo se hace cada seña, practícala frente al teléfono y recibe retroalimentación al instante.</p>
+      <a class="btn" href="vocean.apk" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
+        Descargar para Android
+      </a>
+      <p class="meta">Versión 1.0.0 · APK · 58 MB · Android 64 bits</p>
+    </div>
+    <div class="phone">
+      <video src="promo.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Video de la app Vocean"></video>
+    </div>
+  </div>
+
+  <section>
+    <h2>Qué puedes hacer</h2>
+    <div class="grid">
+      <div class="card"><h3>Diccionario</h3><p>Alfabeto, números, saludos y emergencias, con imagen e instrucciones por seña.</p></div>
+      <div class="card"><h3>Práctica con cámara</h3><p>La app detecta tu mano y compara la pose con la referencia.</p></div>
+      <div class="card"><h3>Juegos</h3><p>Clásico, Supervivencia y Reto diario para repasar lo aprendido.</p></div>
+      <div class="card"><h3>Cultura sorda</h3><p>Historia, derechos en Colombia, mitos y realidades, con quiz por tema.</p></div>
+      <div class="card"><h3>Racha y XP</h3><p>Sube de nivel, mantén tu racha y domina cada seña.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Cómo instalarla</h2>
+    <ol class="steps">
+      <li>Abre esta página desde tu teléfono Android y toca <strong>Descargar para Android</strong>.</li>
+      <li>Abre el archivo <strong>vocean.apk</strong> desde las notificaciones o la carpeta Descargas.</li>
+      <li>Si Android lo pide, permite <strong>instalar apps desconocidas</strong> para tu navegador.</li>
+      <li>Toca <strong>Instalar</strong>, abre Vocean y crea tu cuenta.</li>
+    </ol>
+    <p class="note">Vocean es una herramienta educativa de práctica. No es un traductor de LSC y no entiende frases ni conversaciones.</p>
+  </section>
+</main>
+
+<footer class="wrap">© 2026 Vocean · Hecho en Colombia</footer>
+</body>
+</html>

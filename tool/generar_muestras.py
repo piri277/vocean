@@ -23,7 +23,11 @@ SOLO_ULTIMA = {'c'}
 
 # Umbral por letra = A × percentil 90 de la distancia de cada muestra a su
 # vecina más cercana de la misma letra y cámara, acotado a [MIN, MAX].
-A, DIST_MIN, DIST_MAX, DEDO_MIN, DEDO_MAX = 1.5, 1.0, 1.6, 1.3, 2.0
+# Los pisos dejan margen a otra persona: con muestras de una sola mano, alguien
+# que dobla los dedos ~12° distinto quedaba en naranja (38 % de fotogramas en
+# verde); con estos pisos llega al 75 %, a cambio de que un dedo movido pase el
+# 7 % de las veces en vez del 3 %. Grabar muestras de más personas es mejor.
+A, DIST_MIN, DIST_MAX, DEDO_MIN, DEDO_MAX = 1.5, 1.5, 1.8, 2.2, 2.4
 
 CADENAS = [[0, 1, 2, 3, 4], [0, 5, 6, 7, 8], [0, 9, 10, 11, 12],
            [0, 13, 14, 15, 16], [0, 17, 18, 19, 20]]
